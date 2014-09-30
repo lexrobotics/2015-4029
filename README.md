@@ -10,7 +10,7 @@ Design Philosophy
 This year, we are adopting a software design philosophy of using smaller, independent modules for each aspect of robot control. Each module will interface with a central struct that contains a variety of information about the robot. The basic structure of a module looks as follows:
 ```C
 struct ModuleName {
-  int lastUpdate; // time of lastUpdate
+  int last_update; // time of lastUpdate
   //other private data for module
 };
 
@@ -29,6 +29,12 @@ RobotState modulename_update(RobotState prevState) {
 void modulename_otherPrivateFunction() {
 }
 
+// if more than one module is conflicting with the same data, you may write a module with an update function that takes multiple robot-states as an input and returns the filtered robotstate as an output
+
+RobotState modulename_update(RobotState gyroState, RobotState encoderState) {
+  RobotState newState
+  return newState;
+}
 ```
 
 Using a container struct for data and prefixing functions with the module name will prevent pollution of the global namespace. Although verbose, this will allow modules to be more independent. 
