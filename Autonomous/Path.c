@@ -1,4 +1,4 @@
-#include "Robot.c"
+#include "../Common/Robot.h"
 
 int getXAtIndex (Robot* r,int index){
 	return r->path[index*2];
