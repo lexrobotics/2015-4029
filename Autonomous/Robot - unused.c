@@ -1,4 +1,4 @@
-typedef struct Robot_s {
+typedef struct Robot {
 	float* location;
 	float* next_location;
 	float heading;

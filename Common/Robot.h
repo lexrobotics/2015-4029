@@ -1,13 +1,8 @@
-typedef struct {
-	float x, y, o;
-	float target_x, target_y, target_o;
-	int speed_left;
-	int speed_right;
+typedef struct Robot {
+	float x, y, heading;
+	float desired_location[2];
+	float desired_heading;
+	int speed[2];
 	int pathIndex;
 	int path[32];
-} RobotState;
-
-struct {
-	RobotState state;
-	RobotState prevState;
-} Robot;
+};
