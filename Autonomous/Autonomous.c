@@ -17,9 +17,18 @@
 #include "JoystickDriver.c"
 #include "../Common/basicMovement.c"
 
+void grabTube(){
+	servo[grabber] = 90;
+	pause(2);
+}
 task main(){
 	servo[grabber] = 0;
 	moveDistance(-100, 110);
-	servo[grabber] = 80;
-	turnDistance(-100, 170);
+	grabTube();
+	turnDistance(100, 25);
+	moveDistance(100, 85);
+	turnDistance(100, 275);
+	servo[grabber] = 0;
+	pause(1);
+	moveDistance(100, 25);
 }
