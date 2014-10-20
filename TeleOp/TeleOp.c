@@ -3,7 +3,7 @@
 #pragma config(Motor,  mtr_S1_C1_1,     liftMotors,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, encoder)
-#pragma config(Motor,  mtr_S1_C2_2,     alligator,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     scoop,         tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     tilt,          tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     nomotor,       tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    grabber,              tServoStandard)
@@ -23,14 +23,14 @@ void init() {
 task arm() {
 	while(true) {
 			getJoystickSettings(joystick);
-			if(joy1Btn(2)){
-				motor[alligator] = 100;
+			if(joy1Btn(6)){
+				motor[scoop] = 40;
 			}
-			else if(joy1Btn(4)){
-				motor[alligator] = -100;
+			else if(joy1Btn(8 )){
+				motor[scoop] = -40;
 			}
 			else{
-				motor[alligator] = 0;
+				motor[scoop] = 0;
 			}
 			if(joy2Btn(2)){
 				servo[bucketTilt] = 255;

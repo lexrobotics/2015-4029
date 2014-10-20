@@ -3,7 +3,7 @@
 #pragma config(Motor,  mtr_S1_C1_1,     liftMotors,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, reversed)
-#pragma config(Motor,  mtr_S1_C2_2,     alligator,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     scoop,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     tilt,          tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     nomotor,       tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    grabber,              tServoStandard)
@@ -21,14 +21,18 @@ void grabTube(){
 	servo[grabber] = 90;
 	pause(2);
 }
-task main(){
+void releaseTube(){
 	servo[grabber] = 0;
+	pause(1);
+}
+
+task main(){
+	releaseTube();
 	moveDistance(-100, 110);
 	grabTube();
 	turnDistance(100, 25);
 	moveDistance(100, 85);
 	turnDistance(100, 275);
-	servo[grabber] = 0;
-	pause(1);
+	releaseTube();
 	moveDistance(100, 25);
 }
