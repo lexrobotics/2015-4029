@@ -17,6 +17,7 @@
 
 #include "JoystickDriver.c"
 #include "../Common/basicMovement.c"
+#define robotLength 12.0
 
 void grabTube(){
 	servo[grabber] = 100;
@@ -26,48 +27,55 @@ void releaseTube(){
 	servo[grabber] = 0;
 	pause(1);
 }
-void kickstand(){
-	float robotLength = 12;
-	move(50);
-	while(SensorValue[backUltra] >225){
-	}
+void tillBack(speed,sees){
+	//Takes in a speed and a sees boolean.
+	//This ends when the back ultra sonic either sees something or doesn't
+	//see something depending on the sees boolean
+	move(speed);
+	while((SensorValue[backUltra] >225) == !sees){};
 	move(0);
-	turn(-10);
+}
+void tooClose(threshold){
+	//Sees if it is too close to drive in and get closer
+	return (SensorValue[frontUltra] + SensorValue[backUltra])/2 < threshold
+}
+void getFrontInRange(){
+	//Turn until the front ultrasonic sees the wall
+	turn(10);
 	while(SensorValue[frontUltra] >225){}
-	if(SensorValue[frontUltra] < 20){
-		moveDistance(100, 50);
-		return;
+}
+void parallel(threshold,speed){
+	//Parrallells the robot. Threshold is the closeness of the sensors
+	while(SensorValue[frontUltra] - SensorValue[backUltra] > threshold){
+		turn(speed);
 	}
-	pause(0.1);
 
-	float diff = SensorValue[frontUltra] - SensorValue[backUltra];
-	float angle = radiansToDegrees(atan(diff/robotLength));
-	if(angle >= 0 && angle <= 90) {
-		turnDistance(-100, angle);
+	while(SensorValue[backUltra] - SensorValue[frontUltra] > threshold){
+		turn(-speed);
 	}
-	else if(angle >= 270 && angle <= 360) {
-		turnDistance(100, 360-angle);
+}
+void knockdown(){
+	//drives in turns knockdowns the kickstand and proceeds to end of wall
+	float dist = (SensorValue[frontUltra] + SensorValue[backUltra])/2;
+	turnDistance(-50, 90);
+	moveDistance(100, (-robotLength + dist)/2);
+	turnDistance(50, 90);
+	move(100);
+	while(SensorValue[frontUltra]<225){};
+}
+void kickstand(){
+	tillBack(50,true);
+	getFrontInRange();
+	parallel(20,50);
+	if(tooClose(10)){ 
+		tilBack(100,false);
+		return;
 	}
 	//pause(100);
 	//PARRALLED
-	move(0);
-	move(-50);
-	while(SensorValue[backUltra] < 200) {};
+	tillBack(50,false);
 	moveDistance(50,3);
-	turnDistance(-50, 90);
-	moveDistance(100, (robotLength + diff)/2);
-	turnDistance(50, 90);
-	while(SensorValue[backUltra] > 100){move(50)};
-	move(0);
-	diff = SensorValue[frontUltra] - SensorValue[backUltra];
-	angle = radiansToDegrees(atan(diff/robotLength));
-	if(angle >= 0 && angle <= 90) {
-		turnDistance(-100, angle);
-	}
-	else if(angle >= 270 && angle <= 360) {
-		turnDistance(100, 360-angle);
-	}
-	moveDistance(100, 50);
+	knockdown();
 	//nxtDisplayCenteredTextLine(2,"angle: %f ", 90-radiansToDegrees(atan2(diff, robotLength)));
 }
 
