@@ -35,14 +35,15 @@ void tillBack(speed,sees){
 	while((SensorValue[backUltra] >225) == !sees){};
 	move(0);
 }
-void tooClose(threshold){
+bool tooClose(threshold){
 	//Sees if it is too close to drive in and get closer
-	return (SensorValue[frontUltra] + SensorValue[backUltra])/2 < threshold
+	return ((SensorValue[frontUltra] + SensorValue[backUltra])/2 < threshold);
 }
 void getFrontInRange(){
 	//Turn until the front ultrasonic sees the wall
 	turn(10);
-	while(SensorValue[frontUltra] >225){}
+	while(SensorValue[frontUltra] >225){};
+	turn(0);
 }
 void parallel(threshold,speed){
 	//Parrallells the robot. Threshold is the closeness of the sensors
