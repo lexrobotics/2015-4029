@@ -32,51 +32,71 @@ void tillBack(speed,sees){
 	//This ends when the back ultra sonic either sees something or doesn't
 	//see something depending on the sees boolean
 	move(speed);
-	while((SensorValue[backUltra] >225) == !sees){};
+	if(sees){
+		while(SensorValue[backUltra] >225){};
+	}
+	else{
+		while(SensorValue[backUltra] <225){};
+	}
+	move(0);
+}
+void tillFront(speed,sees){
+	//Takes in a speed and a sees boolean.
+	//This ends when the back ultra sonic either sees something or doesn't
+	//see something depending on the sees boolean
+	move(speed);
+	if(sees){
+		while(SensorValue[backUltra] >225){};
+	}
+	else{
+		while(SensorValue[backUltra] <225){};
+	}
 	move(0);
 }
 bool tooClose(threshold){
 	//Sees if it is too close to drive in and get closer
 	return ((SensorValue[frontUltra] + SensorValue[backUltra])/2 < threshold);
 }
-void getFrontInRange(){
-	//Turn until the front ultrasonic sees the wall
-	turn(10);
-	while(SensorValue[frontUltra] >225){};
-	turn(0);
-}
-void parallel(threshold,speed){
+void parallel(speed){
 	//Parrallells the robot. Threshold is the closeness of the sensors
-	while(SensorValue[frontUltra] - SensorValue[backUltra] > threshold){
+	while(SensorValue[frontUltra] > SensorValue[backUltra]){
 		turn(speed);
 	}
 
-	while(SensorValue[backUltra] - SensorValue[frontUltra] > threshold){
+	while(SensorValue[backUltra] > SensorValue[frontUltra]){
 		turn(-speed);
 	}
 }
 void knockdown(){
 	//drives in turns knockdowns the kickstand and proceeds to end of wall
-	float dist = (SensorValue[frontUltra] + SensorValue[backUltra])/2;
+	float dist = SensorValue[frontUltra];
 	turnDistance(-50, 90);
-	moveDistance(100, (-robotLength + dist)/2);
+	moveDistance(100, dist/2);
 	turnDistance(50, 90);
-	move(100);
-	while(SensorValue[frontUltra]<225){};
+	parallel(50);
+	tillFront(100,false);
 }
 void kickstand(){
 	tillBack(50,true);
-	getFrontInRange();
-	parallel(20,50);
-	if(tooClose(10)){ 
-		tilBack(100,false);
-		return;
-	}
-	//pause(100);
-	//PARRALLED
-	tillBack(50,false);
+	parallel(50);
 	moveDistance(50,3);
-	knockdown();
+	if(SensorValue[frontUltra]>225){
+		//position 1
+		tillFront(-50,false);
+		turnDistance(50,90);
+		tillFront(-50,true);
+		parrallel(50);
+		tillBack(-100,false);
+	}
+	else{
+		if(tooClose(10)){
+			tilBack(100,false);
+			return;
+		}
+		tillBack(50,false);
+		moveDistance(50,3);
+		knockdown();
+	}
 	//nxtDisplayCenteredTextLine(2,"angle: %f ", 90-radiansToDegrees(atan2(diff, robotLength)));
 }
 
