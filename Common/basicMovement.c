@@ -15,6 +15,7 @@ const float TURN_SCALAR = 1.2; //because it's not a square
 //}
 void resetEncoders()
 {
+
 	nMotorEncoder[leftMotors] = 0;
 	nMotorEncoder[rightMotors] = 0;
 	/*
