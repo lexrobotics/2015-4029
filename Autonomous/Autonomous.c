@@ -23,24 +23,31 @@
 /* Autonomous.c
    Final layer of abstraction
 */
+typedef struct {
+	string strings[16];
+	int len;
+} Options;
 
 void createTeleopConfigFile(string &sExecutableName);
+int selectInt(const string label, int prev);
+int selectString(Options s, const string label, int prev);
 
 task main() {
 	nNxtExitClicks = 3;
 
 	string teleopFileName = "TeleOp.c";
 	const int NUM_PATHS = 2;
-	const string PATH_NAMES[NUM_PATHS] = {"Ramp", "Floor"};
-	const int MENU_ENTRIES = 2;
-	string path = PATH_NAMES[0];
-	int delay = 0;
+	Options PATHS;
+	PATHS.strings[0] = "Ramp";
+	PATHS.strings[1] = "Parking";
+	PATHS.len = 2;
 
+	const int MENU_ENTRIES = 2;
+	int delay = 0;
+	int path = 0;
 	int step = 0;
-	int selections[MENU_ENTRIES];
-	while(step < MENU_ENTRIES+1) {
-		if(nNxtButtonPressed == 1) selections[step]++;
-		if(nNxtButtonPressed == 2) selections[step]--;
+	int j=0;
+	while(step < MENU_ENTRIES) {
 		if(nNxtButtonPressed == 0) step--;
 		if(nNxtButtonPressed == 3) step++;
 		if(nNxtButtonPressed!= -1) wait1Msec(200); // give time to lift off finger
@@ -48,20 +55,19 @@ task main() {
 		if(step == -1)
 			return;
 		else if(step == 0) {
-			if(selections[step] >= NUM_PATHS)
-				selections[step] = 0;
-			else if(selections[step] < 0)
-				selections[step] = NUM_PATHS - 1;
-			nxtDisplayCenteredTextLine(2, "%s", PATH_NAMES[selections[step]]);
+			path = selectString(PATHS, "Path", path);
 		}
 		else if(step == 1) {
-			if(selections[step] < 0)
-				selections[step] = 0;
-			nxtDisplayCenteredTextLine(2, "%d", selections[step]);
+			delay = selectInt("Delay", delay);
+		}
+		else {
+			safetyCheck();
 		}
 	}
+	nxtDisplayCenteredTextLine(2, "%s, %d", path, delay);
 	//createTeleopConfigFile(teleopFileName);
 	waitForStart();
+
 	Ramp();
 }
 
@@ -92,4 +98,26 @@ void createTeleopConfigFile(string &sExecutableName)
   //displayCommandProgress(sMessage);
   nxtDisplayCenteredTextLine(2, "%s", sMessage);
   return;
+}
+
+int selectInt(const string label, int prev) {
+	int i = prev;
+	nxtDisplayCenteredTextLine(2, "%s: %d", label, i);
+	if(nNxtButtonPressed == 1) i++;
+	if(nNxtButtonPressed == 2) i--;
+	if(nNxtButtonPressed != -1) wait1Msec(200);
+	if(i<0) i = 0;
+	return i;
+}
+
+int selectString(Options s, const string label, int prev) {
+	int i = prev;
+	int len = s.len - 1;
+	nxtDisplayCenteredTextLine(2, "%s: %s", label, s.strings[i]);
+	if(nNxtButtonPressed == 1) i++;
+	if(nNxtButtonPressed == 2) i--;
+	if(nNxtButtonPressed != -1) wait1Msec(200);
+	if(i<0) i = len;
+	if(i>len) i = 0;
+	return i;
 }

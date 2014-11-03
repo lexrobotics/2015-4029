@@ -1,4 +1,4 @@
-#include "drivers/hitechnic-irseeker-v2.h"
+#include "drivers\hitechnic-irseeker-v2.h"
 const float DIAMETER = 4.0; //diameter of wheel in inches
 const float ENCODER_SCALE = 1440.0; //number of encoder counts per rotation
 const float CIRCUMFERENCE = DIAMETER * PI;
