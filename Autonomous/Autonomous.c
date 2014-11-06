@@ -29,6 +29,7 @@ typedef struct {
 } Options;
 
 void createTeleopConfigFile(string &sExecutableName);
+void finalCheck();
 int selectInt(const string label, int prev);
 int selectString(Options s, const string label, int prev);
 
@@ -61,7 +62,7 @@ task main() {
 			delay = selectInt("Delay", delay);
 		}
 		else {
-			safetyCheck();
+			finalCheck();
 		}
 	}
 	nxtDisplayCenteredTextLine(2, "%s, %d", path, delay);
@@ -120,4 +121,8 @@ int selectString(Options s, const string label, int prev) {
 	if(i<0) i = len;
 	if(i>len) i = 0;
 	return i;
+}
+
+void finalCheck() {
+	while(nNxtB
 }
