@@ -32,12 +32,7 @@ task arm() {
 			else{
 				motor[spinner] = 0;
 			}
-			if(joy2Btn(1)){
-				servo[bucketGate] = 230;
-			}
-			else if(joy2Btn(3)){
-				servo[bucketGate] = 122;
-			}
+
 			if(joy2Btn(2)){
 				bucketliftval++;
 				if(bucketliftval > 255)
