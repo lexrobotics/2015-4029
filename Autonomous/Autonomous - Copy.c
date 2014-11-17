@@ -43,6 +43,30 @@ void tillBack(int speed,bool sees){
 	}
 	move(0);
 }
+
+void tillBackWithFilter(int speed,bool sees){
+	//Takes in a speed and a sees boolean.
+	//This ends when the back ultra sonic either sees something or doesn't
+	//see something depending on the sees boolean
+	move(speed);
+	if(sees){
+		while(true){
+			while(SensorValue[backUltra] > 225){};
+			int dist = SensorValue[backUltra];
+			turnUltra(atan2(18,dist)+10);
+			if(SensorValue[backUltra]>225){
+				turnUltra(0);
+				while(SensorValue[backUltra] < 225){};
+				break;
+			}
+
+		}
+	}
+	else{
+		while(SensorValue[backUltra] <225){};
+	}
+	move(0);
+}
 void tillFront(int speed, bool sees){
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
@@ -99,7 +123,7 @@ void knockdown(){
 	tillFront(100,false);
 }
 void kickstand(){
-	tillBack(50,true);
+	tillBackWithFilter(50,true);
 	pause(0.5);
 	parallel(45);
 	moveDistance(45,5);

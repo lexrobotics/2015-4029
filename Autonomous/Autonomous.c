@@ -20,7 +20,6 @@
 #define AUTO_COMPETITION
 
 #include "JoystickDriver.c"
-#include "Autonomous.c"
 #include "paths/Ramp.c"
 
 /* Autonomous.c
