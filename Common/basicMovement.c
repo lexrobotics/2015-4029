@@ -50,11 +50,48 @@ void moveDistance(int speed, int distance) {
 
 	while(abs(nMotorEncoder[leftMotors]) < abs(target)  //wait until position reached
 		&& abs(nMotorEncoder[rightMotors]) < abs(target)) {
-			nxtDisplayBigTextLine(2, "%d", nMotorEncoder[leftMotors]);
 			move(speed); //move at desired speed
 		}
 
 	move(0); //stop
+}
+
+void moveDistanceControlled(float speed, int distance) {
+	float target = inchesToEncoder(distance);
+	resetEncoders();
+	float adjustedSpeed = speed;
+	float error = distance;
+	while(abs(error) > 5) {
+		int error = target - abs(nMotorEncoder[leftMotors] + nMotorEncoder[rightMotors])/2;
+		adjustedSpeed = speed;
+		if(error < target) {
+			 adjustedSpeed = (speed * (1.0 - abs(target-error)/target));
+		}
+		nxtDisplayCenteredTextLine(2, "s: %d, e: %d", adjustedSpeed, error);
+		move(adjustedSpeed);
+	}
+}
+
+void moveDistancePID(float speed, int distance) {
+	static float kP = 0.02;
+	float target = inchesToEncoder(distance);
+
+	if(speed < 0)
+		target *= -1;
+
+	speed = abs(speed);
+
+	resetEncoders();
+	float error = target;
+	while(abs(error) > 100) {
+		nxtDisplayCenteredTextLine(2, "%d, %d", target, nMotorEncoder[rightMotors]);
+		error = target - nMotorEncoder[rightMotors];
+		float p = sgn(error) * 0 + kP * error;
+		if(abs(p) > speed)
+			move(sgn(p)*speed);
+		else
+			move(p);
+	}
 }
 
 void turnDistance(int speed, int angle) {
