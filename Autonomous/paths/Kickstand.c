@@ -1,7 +1,8 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     backUltra,      sensorSONAR)
 #pragma config(Sensor, S3,     frontUltra,     sensorSONAR)
-#pragma config(Sensor, S4,     color,          sensorCOLORFULL)
+#pragma config(Sensor, S4,     HTIRS2,         sensorI2CCustom)
 #pragma config(Motor,  mtr_S1_C1_1,     liftMotors,    tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, reversed, encoder)
@@ -9,8 +10,8 @@
 #pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    rearUltraServo,       tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    bucketTilt,           tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    bucketGate,           tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    servo2,               tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    grabber,              tServoContinuousRotation)
@@ -28,7 +29,7 @@ void grabTube(){
 }
 void releaseTube(){
 	servo[grabber] = 0;
-	pause(1);
+	pause(1.1);
 	servo[grabber] = 127;
 }
 void tillBack(int speed,bool sees){
@@ -126,49 +127,105 @@ void tillBackWithFilter(int speed,bool sees){
 	move(0);
 }
 
-void Ramp(){
-	servo[bucketGate] = 255;
-	releaseTube();
+void knockdown(){
+	//drives in turns knockdowns the kickstand and proceeds to end of wall
+	turnUltra(10);
+	tillBack(-40, false);
+	pause(1);
+	turnDistance(45, 90);
+	turnUltra(90);
+	move(-20);
+	while(SensorValue[backUltra]>30){};
+	move(0);
 	turnUltra(0);
-	moveDistancePID(-100, 90);
+	pause(1);
+	turnDistance(50, 90);
+	tillFront(100,true);
+	parallel(45);
+	moveDistance(100,72);
+	tillFront(100,false);
+}
+void kickstand(){
+	tillBackWithFilter(50,true);
+	turnUltra(0);
+	pause(0.5);
+	parallel(45);
+	pause(0.5);
+	if(tooClose(10)){
+		tillBack(100,false);
+		return;
+	}
+	knockdown();
+}
+void reverseKnockdown(){
+	//drives in turns knockdowns the kickstand and proceeds to end of wall
+	float dist = (SensorValue[frontUltra] + SensorValue[backUltra])/2 - 20;
+	tillFront(-50, false);
+	pause(1);
+	turnDistance(45, 90);
+	moveDistance(-50, dist/2.5);
+	pause(1);
+	turnDistance(-50, 90);
+	tillBack(-100,true);
+	parallel(45);
+	moveDistance(-100,72);
+	tillBack(-100,false);
+}
+void reverseKickstand() {
+	tillFront(-50,true);
+	tillBack(-50, false);
+	moveDistance(50, 9);
+	pause(0.5);
+	parallel(45);
+	moveDistance(-45,5);
+
+	/*if(tooClose(10)){
+		tillFront(-100,false);
+		return;
+	}*/
+	reverseKnockdown();
+}
+
+void Kickstand(){
+	turnUltra(0);
+	/*float robotLength = 29;
+	while(true) {
+		float diff = SensorValue[frontUltra] - SensorValue[backUltra];
+		float angle = radiansToDegrees(atan(diff/robotLength));
+		nxtDisplayCenteredTextLine(2,"angle: %f ", angle);
+	}*/
+		// the default DSP mode is 1200 Hz.
+  //tHTIRS2DSPMode _mode = DSP_1200;
+ // HTIRS2setDSPMode(HTIRS2, _mode);
+  //int _dirAC = HTIRS2readACDir(HTIRS2);
+	int _dirAC = 0;
+  int position = 1;
+  if(_dirAC == 0) {
+  	position = 2;
+	}
+	else {
+		PlaySound(soundBeepBeep);
+	}
+
+	//releaseTube();
+	//parallel(45);
+	moveDistance(-100, 90);
 	grabTube();
-	turnDistance(100, 20);
-	moveDistance(100, 70);
+	moveDistance(50, 5);
+	pause(0.5);
+	parallel(45);
+	turnDistance(100, 10);
+	moveDistance(100, 90);
 	pause(0.5);
 	turnDistance(100, 190);
-	resetEncoders();
-	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-50);
-	}
-	moveDistance(-50, 5);
+	pause(0.5);
 	releaseTube();
-	moveDistance(100, 20);
-	pause(0.5);
-	turnDistance(100, 220);
-	turnUltra(45);
-	pause(0.5);
-	moveDistance(-100, 65);
-	turnUltra(0);
-	turnDistance(-50, 20);
-	pause(0.5);
-	parallel(50);
-	pause(1);
-	turnUltra(95);
-	pause(1);
-	resetEncoders();
-	while(SensorValue[backUltra] > 30 && nMotorEncoder[rightMotors] < inchesToEncoder(24))
-		move(-50);
-	//moveDistancePID(-100, SensorValue[backUltra]/2.5 - 15);
-	grabTube();
-	moveDistance(100, 50);
-	turnDistance(50, 45);
-	moveDistance(100, 70);
-	turnDistance(50, 190);
-	moveDistance(-100, 40);
+	if(position == 2)
+		kickstand();
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	Ramp();
+	Kickstand();
 }
 #endif
