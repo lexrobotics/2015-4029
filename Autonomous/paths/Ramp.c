@@ -44,6 +44,21 @@ void tillBack(int speed,bool sees){
 	}
 	move(0);
 }
+
+void tillBack(int speed,bool sees, int threshold){
+	//Takes in a speed and a sees boolean.
+	//This ends when the back ultra sonic either sees something or doesn't
+	//see something depending on the sees boolean
+	move(speed);
+	if(sees){
+		while(SensorValue[backUltra] > threshold){};
+	}
+	else{
+		while(SensorValue[backUltra] < threshold){};
+	}
+	move(0);
+}
+
 void tillFront(int speed, bool sees){
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
@@ -126,12 +141,30 @@ void tillBackWithFilter(int speed,bool sees){
 	move(0);
 }
 
+task scoreAutoBall() {
+	const int UPPER_LIFT_TARGET = 1* 1440;
+	const int LOWER_LIFT_TARGET = 1* 1440;
+	while(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET || nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET) {
+		if(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET)
+			motor[liftStageOne] = 100;
+		else
+			motor[liftStageOne] = 0;
+		if(nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET)
+			motor[liftStageTwo] = 100;
+		else
+			motor[liftStageTwo] = 0;
+	}
+}
+
 void Ramp(){
-	servo[bucketGate] = 255;
+	// Navigate down the ramp and grab tube
+	pause(0.5);
 	releaseTube();
 	turnUltra(0);
 	moveDistancePID(-100, 90);
 	grabTube();
+	// bring tube to goal
+	//scoreAutoBall();
 	turnDistance(100, 20);
 	moveDistance(100, 70);
 	pause(0.5);
@@ -142,33 +175,35 @@ void Ramp(){
 	}
 	moveDistance(-50, 5);
 	releaseTube();
-	moveDistance(100, 20);
-	pause(0.5);
-	turnDistance(100, 220);
-	turnUltra(45);
-	pause(0.5);
-	moveDistance(-100, 65);
-	turnUltra(0);
-	turnDistance(-50, 20);
-	pause(0.5);
+	//parallell and get in front of ramp
+
+	turnDistance(50, 180);
+	tillBack(50,true);
+	pause(1);
 	parallel(50);
+	pause(0.5);
+	tillBack(-50,false, 60);
+	//angle towards the wall and turn the ultra perpendicular to the wall
+	pause(0.2);
+	turnDistance(50,30);
+	turnUltra(30);
+	//get within range
+	move(-20);
+	while(SensorValue[backUltra]>40){};
+	move(0);
+	//parrallell to wall
+	turnUltra(0);
 	pause(1);
-	turnUltra(95);
-	pause(1);
-	resetEncoders();
-	while(SensorValue[backUltra] > 30 && nMotorEncoder[rightMotors] < inchesToEncoder(24))
-		move(-50);
-	//moveDistancePID(-100, SensorValue[backUltra]/2.5 - 15);
-	grabTube();
-	moveDistance(100, 50);
-	turnDistance(50, 45);
-	moveDistance(100, 70);
-	turnDistance(50, 190);
-	moveDistance(-100, 40);
+	parallel(50);
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
+	//motor[liftStageOne] = 50;
+	//pause(0.5);
+	//motor[liftStageOne]=0;
+	servo[bucketGate] = 0;
 	Ramp();
+
 }
 #endif
