@@ -182,7 +182,12 @@ void Ramp(){
 	//parallel and get in front of ramp
 
 	turnDistance(70, 210);
-	tillBack(50,true);
+	//GARRETT CHANGED THIS AT THE END OF WENDESDAYS MEETING TO FIX SEEING THE TOP OF The RAMP AND STUFF
+	//TAKE NOTE
+	// CHANGED tillBack to tillFront
+	//NOTE YES YOU NOAH
+	//NOTE YES YOU NOAH
+	tillFront(50,true);
 	pause(0.5);
 	parallel(50);
 	pause(0.5);
