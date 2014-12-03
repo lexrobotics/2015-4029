@@ -74,6 +74,7 @@ void moveDistanceControlled(float speed, int distance) {
 
 void moveDistancePID(float speed, int distance) {
 	static float kP = 0.02;
+	static int BASE_SPEED = 10;
 	float target = inchesToEncoder(distance);
 
 	if(speed < 0)
@@ -86,7 +87,7 @@ void moveDistancePID(float speed, int distance) {
 	while(abs(error) > 100) {
 		nxtDisplayCenteredTextLine(2, "%d, %d", target, nMotorEncoder[rightMotors]);
 		error = target - nMotorEncoder[rightMotors];
-		float p = sgn(error) * 0 + kP * error;
+		float p = kP * error + sgn(error)* BASE_SPEED;
 		if(abs(p) > speed)
 			move(sgn(p)*speed);
 		else

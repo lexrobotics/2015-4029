@@ -1,4 +1,5 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     backUltra,      sensorSONAR)
 #pragma config(Sensor, S3,     frontUltra,     sensorSONAR)
 #pragma config(Sensor, S4,     color,          sensorCOLORFULL)
@@ -44,21 +45,6 @@ void tillBack(int speed,bool sees){
 	}
 	move(0);
 }
-
-void tillBack(int speed,bool sees, int threshold){
-	//Takes in a speed and a sees boolean.
-	//This ends when the back ultra sonic either sees something or doesn't
-	//see something depending on the sees boolean
-	move(speed);
-	if(sees){
-		while(SensorValue[backUltra] > threshold){};
-	}
-	else{
-		while(SensorValue[backUltra] < threshold){};
-	}
-	move(0);
-}
-
 void tillFront(int speed, bool sees){
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
@@ -91,11 +77,11 @@ void parallel(int speed){
 
 void parallel(int speed){
 	//Parrallells the robot. Threshold is the closeness of the sensors
-	while(abs(SensorValue[frontUltra] - (SensorValue[backUltra] - 1)) > 0) {
-		if(SensorValue[frontUltra] > SensorValue[backUltra] - 1){
+	while(abs(SensorValue[frontUltra] - SensorValue[backUltra]) > 0) {
+		if(SensorValue[frontUltra] > SensorValue[backUltra]){
 			turn(-speed);
 		}
-		else if(SensorValue[frontUltra] < SensorValue[backUltra] - 1) {
+		else {
 			turn(speed);
 		}
 	}
@@ -141,97 +127,18 @@ void tillBackWithFilter(int speed,bool sees){
 	move(0);
 }
 
-task init() {
+void Simple(){
+	servo[bucketGate] = 0;
 	releaseTube();
 	turnUltra(0);
-}
+	moveDistance(-100, 70);
 
-task scoreAutoBall() {
-	const int UPPER_LIFT_TARGET = 1* 1440;
-	const int LOWER_LIFT_TARGET = 1* 1440;
-	while(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET || nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET) {
-		if(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET)
-			motor[liftStageOne] = 100;
-		else
-			motor[liftStageOne] = 0;
-		if(nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET)
-			motor[liftStageTwo] = 100;
-		else
-			motor[liftStageTwo] = 0;
-	}
-}
-
-void Ramp(){
-	// Navigate down the ramp and grab tube
-	pause(0.5);
-	startTask(init);
-	moveDistancePID(-100, 90);
-	grabTube();
-	// bring tube to goal
-	//scoreAutoBall();
-	turnDistance(100, 23);
-	moveDistance(100, 70);
-	pause(0.5);
-	turnDistance(100, 190);
-	resetEncoders();
-	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-50);
-	}
-	moveDistance(-50, 5);
-	releaseTube();
-	//parallel and get in front of ramp
-
-	turnDistance(70, 210);
-	tillBack(50,true);
-	pause(0.5);
-	parallel(50);
-	pause(0.5);
-	tillBack(-50,false, 60);
-	//angle towards the wall and turn the ultra perpendicular to the wall
-	pause(0.2);
-	turnDistance(50,30);
-	moveDistance(-50, 15);
-	turnUltra(30);
-	//get within range
-	move(-50);
-	while(SensorValue[backUltra]>36){};
-	move(0);
-	//parrallell to wall
-	turnUltra(0);
-	pause(0.5);
-	parallel(40);
-	pause(0.5);
-	turnUltra(90);
-	move(0);
-	float d1 = SensorValue[backUltra] + 21.6;
-	float d2 = SensorValue[frontUltra] + 17.8;
-	int distFromTube = sqrt(pow(d1, 2) + pow(d2, 2));
-	float angle = (180/PI) * atan(d2/d1);
-	turnDistance(50, angle);
-	turnUltra(135);
-	move(-70);
-	while(SensorValue[backUltra]>30){};
-	move(0);
-	moveDistance(-50, 7);
-	grabTube();
-	moveDistance(50, 24);
-	turnDistance(50, 10);
-	moveDistance(100, 70);
-	turnDistance(100, 180);
-	resetEncoders();
-	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-50);
-	}
-	move(0);
-	releaseTube();
+	turnDistance(100, 100);
+	moveDistance(-100, 70);
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	//motor[liftStageOne] = 50;
-	//pause(0.5);
-	//motor[liftStageOne]=0;
-	//servo[bucketGate] = 0;
-	Ramp();
+	Simple();
 }
 #endif
