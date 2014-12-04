@@ -26,7 +26,7 @@ void grabTube(){
 	pause(1.2);
 	servo[grabber] = 127;
 }
-void releaseTube(){
+task releaseTube(){
 	servo[grabber] = 0;
 	pause(1);
 	servo[grabber] = 127;
@@ -142,7 +142,7 @@ void tillBackWithFilter(int speed,bool sees){
 }
 
 task init() {
-	releaseTube();
+	startTask(releaseTube);
 	turnUltra(0);
 }
 
@@ -165,33 +165,28 @@ void Ramp(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
 	startTask(init);
-	moveDistancePID(-100, 90);
+	moveDistancePID(-100, 85);
 	grabTube();
 	// bring tube to goal
 	//scoreAutoBall();
-	turnDistance(100, 23);
+	turnDistance(100, 20);
 	moveDistance(100, 70);
 	pause(0.5);
 	turnDistance(100, 190);
 	resetEncoders();
 	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-50);
+		move(-30);
 	}
-	moveDistance(-50, 5);
-	releaseTube();
+	moveDistance(-50, 1);
+	startTask(releaseTube);
 	//parallel and get in front of ramp
-
-	turnDistance(70, 210);
-	//GARRETT CHANGED THIS AT THE END OF WENDESDAYS MEETING TO FIX SEEING THE TOP OF The RAMP AND STUFF
-	//TAKE NOTE
-	// CHANGED tillBack to tillFront
-	//NOTE YES YOU NOAH
-	//NOTE YES YOU NOAH
-	tillFront(50,true);
+	turnDistance(70, 180);
+	tillFront(30,true);
+	moveDistance(30,10);
 	pause(0.5);
-	parallel(50);
+	parallel(30);
 	pause(0.5);
-	tillBack(-50,false, 60);
+	tillBack(-30,false, 60);
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	pause(0.2);
 	turnDistance(50,30);
@@ -204,31 +199,42 @@ void Ramp(){
 	//parrallell to wall
 	turnUltra(0);
 	pause(0.5);
-	parallel(40);
+	parallel(30);
 	pause(0.5);
 	turnUltra(90);
+	tillBack(-50,false, 60);
 	move(0);
-	float d1 = SensorValue[backUltra] + 21.6;
-	float d2 = SensorValue[frontUltra] + 17.8;
+	//Use ultrasonics to calculate angle needed to reach second tube
+	float d1 = SensorValue[backUltra] + 21.6 - 30.0;
+	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
 	int distFromTube = sqrt(pow(d1, 2) + pow(d2, 2));
 	float angle = (180/PI) * atan(d2/d1);
 	turnDistance(50, angle);
+	//Turn ultrasonic and wait to see tube in range
+	pause(0.5);
 	turnUltra(135);
-	move(-70);
+	move(-40);
 	while(SensorValue[backUltra]>30){};
 	move(0);
 	moveDistance(-50, 7);
 	grabTube();
-	moveDistance(50, 24);
-	turnDistance(50, 10);
+	//return to parking goal
+	turnUltra(0);
+	turnDistance(50, 30);
+	moveDistance(50, 12);
+		pause(1);
+	parallel(30);
+	pause(1);
+	moveDistance(50, 12);
+	turnDistance(50, 35);
 	moveDistance(100, 70);
-	turnDistance(100, 180);
+	turnDistance(100, 200);
 	resetEncoders();
 	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-50);
+		move(-30);
 	}
 	move(0);
-	releaseTube();
+	//releaseTube();
 }
 
 #ifndef AUTO_COMPETITION
