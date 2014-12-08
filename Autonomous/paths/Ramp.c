@@ -1,4 +1,5 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     backUltra,      sensorSONAR)
 #pragma config(Sensor, S3,     frontUltra,     sensorSONAR)
 #pragma config(Sensor, S4,     color,          sensorCOLORFULL)
@@ -6,8 +7,8 @@
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     spinner,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, openLoop, encoder)
 #pragma config(Servo,  srvo_S1_C3_1,    rearUltraServo,       tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    bucketTilt,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    bucketGate,           tServoStandard)
@@ -21,6 +22,11 @@
 #include "../../Common/basicMovement.c"
 #define robotLength 12.0
 
+bool ultraReady = true;
+int ultraAngle = 0;
+
+void waitForUltra();
+
 void grabTube(){
 	servo[grabber] = 255;
 	pause(1.2);
@@ -32,6 +38,7 @@ task releaseTube(){
 	servo[grabber] = 127;
 }
 void tillBack(int speed,bool sees){
+	waitForUltra();
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
 	//see something depending on the sees boolean
@@ -46,6 +53,7 @@ void tillBack(int speed,bool sees){
 }
 
 void tillBack(int speed,bool sees, int threshold){
+	waitForUltra();
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
 	//see something depending on the sees boolean
@@ -60,6 +68,7 @@ void tillBack(int speed,bool sees, int threshold){
 }
 
 void tillFront(int speed, bool sees){
+	waitForUltra();
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
 	//see something depending on the sees boolean
@@ -73,6 +82,7 @@ void tillFront(int speed, bool sees){
 	move(0);
 }
 bool tooClose(int threshold){
+	waitForUltra();
 	//Sees if it is too close to drive in and get closer
 	return ((SensorValue[frontUltra] + SensorValue[backUltra])/2 < threshold);
 }
@@ -90,6 +100,7 @@ void parallel(int speed){
 */
 
 void parallel(int speed){
+	waitForUltra();
 	//Parrallells the robot. Threshold is the closeness of the sensors
 	while(abs(SensorValue[frontUltra] - (SensorValue[backUltra] - 1)) > 0) {
 		if(SensorValue[frontUltra] > SensorValue[backUltra] - 1){
@@ -102,16 +113,29 @@ void parallel(int speed){
 	move(0);
 }
 
-void turnUltra(int angle) {
+task turnUltraTask() {
+	ultraReady = false;
 	int ZERO = 189;
-	int scaled = angle * 255.0/180.0;
+	int scaled = ultraAngle * 255.0/180.0;
 
 	servo[rearUltraServo] = ZERO - scaled;
-
 	pause(0.4);
+	ultraReady = true;
+}
+
+void waitForUltra() {
+	move(0);
+	while(!ultraReady);
+}
+
+// wrapper for turnUltraTask to retain backwards compat
+void turnUltra(int angle) {
+	ultraAngle = angle;
+	StartTask(turnUltraTask);
 }
 
 void tillBackWithFilter(int speed,bool sees){
+	waitForUltra();
 	//Takes in a speed and a sees boolean.
 	//This ends when the back ultra sonic either sees something or doesn't
 	//see something depending on the sees boolean
@@ -147,69 +171,89 @@ task init() {
 }
 
 task scoreAutoBall() {
-	const int UPPER_LIFT_TARGET = 1* 1440;
-	const int LOWER_LIFT_TARGET = 1* 1440;
+	const int UPPER_LIFT_TARGET = 1.5 * 1440;
+	const int LOWER_LIFT_TARGET = 21 * 280;
+	nMotorEncoder[liftStageOne] = 0;
+	nMotorEncoder[liftStageTwo] = 0;
 	while(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET || nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET) {
-		if(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET)
+		if(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET)
 			motor[liftStageOne] = 100;
 		else
 			motor[liftStageOne] = 0;
-		if(nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET)
-			motor[liftStageTwo] = 100;
+		if(abs(nMotorEncoder[liftStageTwo]) < UPPER_LIFT_TARGET)
+			motor[liftStageTwo] = -100;
 		else
 			motor[liftStageTwo] = 0;
 	}
+	servo[bucketTilt] = 255;
+	while(true);
 }
 
 void Ramp(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
 	startTask(init);
-	moveDistancePID(-100, 85);
+	moveDistancePID(-90, 0.02, 0);
 	grabTube();
 	// bring tube to goal
 	//scoreAutoBall();
-	turnDistance(100, 20);
+	turnDistancePID(40);
 	moveDistance(100, 70);
 	pause(0.5);
-	turnDistance(100, 190);
+	turnDistance(100, 170);
 	resetEncoders();
-	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-30);
+	turnUltra(90);
+	while(SensorValue[backUltra] > 65) {
+		move(-100);
 	}
-	moveDistance(-50, 1);
 	startTask(releaseTube);
 	//parallel and get in front of ramp
-	turnDistance(70, 180);
+	turnUltra(0);
+	turnDistance(100, 210);
+	moveDistance(100, 5);
 	tillFront(30,true);
-	moveDistance(30,10);
 	pause(0.5);
-	parallel(30);
+	parallel(50);
 	pause(0.5);
 	tillBack(-30,false, 60);
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	pause(0.2);
 	turnDistance(50,30);
-	moveDistance(-50, 15);
+	moveDistance(-50, 5);
 	turnUltra(30);
 	//get within range
-	move(-50);
+	waitForUltra();
+	move(-70);
 	while(SensorValue[backUltra]>36){};
 	move(0);
 	//parrallell to wall
 	turnUltra(0);
 	pause(0.5);
-	parallel(30);
+	parallel(50);
 	pause(0.5);
 	turnUltra(90);
-	tillBack(-50,false, 60);
+	tillBack(-50,true, 60);
+	move(0);
+	turn(70);
+	int prevValue = SensorValue[backUltra];
+	while(SensorValue[backUltra] > prevValue - 30) {
+		prevValue = SensorValue[backUltra];
+	}
 	move(0);
 	//Use ultrasonics to calculate angle needed to reach second tube
-	float d1 = SensorValue[backUltra] + 21.6 - 30.0;
+	/*float d1 = SensorValue[backUltra] + 26 - 30.0;
 	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
 	int distFromTube = sqrt(pow(d1, 2) + pow(d2, 2));
 	float angle = (180/PI) * atan(d2/d1);
-	turnDistance(50, angle);
+
+	turnDistancePID(angle);
+	*/
+	/*move(0);
+	while(true) {
+		nxtDisplayCenteredTextLine(1, "f: %d, b: %d", SensorValue[frontUltra], SensorValue[backUltra]);
+		nxtDisplayCenteredTextLine(2, "f: %d, b: %d", d1, d2);
+		nxtDisplayCenteredTextLine(3, "a: %f", angle);
+	}*/
 	//Turn ultrasonic and wait to see tube in range
 	pause(0.5);
 	turnUltra(135);
@@ -223,7 +267,7 @@ void Ramp(){
 	turnDistance(50, 30);
 	moveDistance(50, 12);
 		pause(1);
-	parallel(30);
+	parallel(50);
 	pause(1);
 	moveDistance(50, 12);
 	turnDistance(50, 35);
@@ -234,7 +278,7 @@ void Ramp(){
 		move(-30);
 	}
 	move(0);
-	//releaseTube();
+	startTask(releaseTube);
 }
 
 #ifndef AUTO_COMPETITION
@@ -242,7 +286,7 @@ task main() {
 	//motor[liftStageOne] = 50;
 	//pause(0.5);
 	//motor[liftStageOne]=0;
-	//servo[bucketGate] = 0;
+	servo[bucketGate] = 10;
 	Ramp();
 }
 #endif

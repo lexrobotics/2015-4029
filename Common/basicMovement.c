@@ -1,4 +1,5 @@
 #include "drivers\hitechnic-irseeker-v2.h"
+#include "..\common\PID.h"
 const float DIAMETER = 4.0; //diameter of wheel in inches
 const float ENCODER_SCALE = 1440.0; //number of encoder counts per rotation
 const float CIRCUMFERENCE = DIAMETER * PI;
@@ -56,43 +57,68 @@ void moveDistance(int speed, int distance) {
 	move(0); //stop
 }
 
-void moveDistanceControlled(float speed, int distance) {
+void moveDistancePID(int distance) {
+	PID forwardsPID;
+ 	forwardsPID.Kp = 0.04;
+ 	forwardsPID.Ki = 0.00001;
+ 	forwardsPID.Kd = 0;
+ 	forwardsPID.integral = 0;
+
 	float target = inchesToEncoder(distance);
+	float error = target;
+	float speed = 100;
+
 	resetEncoders();
-	float adjustedSpeed = speed;
-	float error = distance;
-	while(abs(error) > 5) {
-		int error = target - abs(nMotorEncoder[leftMotors] + nMotorEncoder[rightMotors])/2;
-		adjustedSpeed = speed;
-		if(error < target) {
-			 adjustedSpeed = (speed * (1.0 - abs(target-error)/target));
-		}
-		nxtDisplayCenteredTextLine(2, "s: %d, e: %d", adjustedSpeed, error);
-		move(adjustedSpeed);
+	while(abs(error) > 50) {
+		error = target - nMotorEncoder[rightMotors];
+		speed = updatePID(forwardsPID, error, nMotorEncoder[rightMotors]);
+		writeDebugStreamLine("%f", speed);
+		move(speed);
 	}
+	move(0);
+}
+void moveDistancePID(int distance, float _Kp, float _Ki) {
+	PID forwardsPID;
+ 	forwardsPID.Kp = _Kp;
+ 	forwardsPID.Ki = _Ki;
+ 	forwardsPID.Kd = 0;
+ 	forwardsPID.integral = 0;
+
+	float target = inchesToEncoder(distance);
+	float error = target;
+	float speed = 100;
+
+	resetEncoders();
+	while(abs(error) > 50) {
+		error = target - nMotorEncoder[rightMotors];
+		speed = updatePID(forwardsPID, error, nMotorEncoder[rightMotors]);
+		writeDebugStreamLine("%f", speed);
+		move(speed);
+	}
+	move(0);
 }
 
-void moveDistancePID(float speed, int distance) {
-	static float kP = 0.02;
-	static int BASE_SPEED = 10;
-	float target = inchesToEncoder(distance);
+void turnDistancePID(int angle) {
+	PID turnPID;
+ 	turnPID.Kp = 0.1;
+ 	turnPID.Ki = 0.0001;
+ 	turnPID.Kd = 0;
+ 	turnPID.integral = 0;
 
-	if(speed < 0)
-		target *= -1;
-
-	speed = abs(speed);
+	float target = -degreesToEncoder(angle);
+	float error = target;
+	float speed = 100;
 
 	resetEncoders();
-	float error = target;
-	while(abs(error) > 100) {
-		nxtDisplayCenteredTextLine(2, "%d, %d", target, nMotorEncoder[rightMotors]);
+	while(abs(error) > 25) {
 		error = target - nMotorEncoder[rightMotors];
-		float p = kP * error + sgn(error)* BASE_SPEED;
-		if(abs(p) > speed)
-			move(sgn(p)*speed);
-		else
-			move(p);
+		speed = updatePID(turnPID, error, nMotorEncoder[rightMotors]);
+		writeDebugStreamLine("%f", speed);
+		if(abs(speed) > 100)
+			speed = sgn(speed) * 100;
+		turn(-speed);
 	}
+	move(0);
 }
 
 void turnDistance(int speed, int angle) {
