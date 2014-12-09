@@ -133,7 +133,14 @@ void turnUltra(int angle) {
 	ultraAngle = angle;
 	StartTask(turnUltraTask);
 }
-
+void sweep(){
+	turn(70);
+	int prevValue = SensorValue[backUltra];
+	while(SensorValue[backUltra] > prevValue - 30) {
+		prevValue = SensorValue[backUltra];
+	}
+	move(0);
+}
 void tillBackWithFilter(int speed,bool sees){
 	waitForUltra();
 	//Takes in a speed and a sees boolean.
@@ -234,12 +241,8 @@ void Ramp(){
 	turnUltra(90);
 	tillBack(-50,true, 60);
 	move(0);
-	turn(70);
-	int prevValue = SensorValue[backUltra];
-	while(SensorValue[backUltra] > prevValue - 30) {
-		prevValue = SensorValue[backUltra];
-	}
-	move(0);
+	//swivel and find tube
+	sweep();
 	//Use ultrasonics to calculate angle needed to reach second tube
 	/*float d1 = SensorValue[backUltra] + 26 - 30.0;
 	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
