@@ -178,11 +178,11 @@ task init() {
 }
 
 task scoreAutoBall() {
-	const int UPPER_LIFT_TARGET = 1.5 * 1440;
+	const int UPPER_LIFT_TARGET = 1.2 * 1440;
 	const int LOWER_LIFT_TARGET = 21 * 280;
 	nMotorEncoder[liftStageOne] = 0;
 	nMotorEncoder[liftStageTwo] = 0;
-	while(nMotorEncoder[liftStageOne] < LOWER_LIFT_TARGET || nMotorEncoder[liftStageTwo] < UPPER_LIFT_TARGET) {
+	while(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET || abs(nMotorEncoder[liftStageTwo]) < UPPER_LIFT_TARGET) {
 		if(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET)
 			motor[liftStageOne] = 100;
 		else
@@ -192,7 +192,10 @@ task scoreAutoBall() {
 		else
 			motor[liftStageTwo] = 0;
 	}
-	servo[bucketTilt] = 255;
+	nxtDisplayCenteredTextLine(2, "there");
+	servo[bucketTilt] = 225;
+	pause(0.5);
+	servo[bucketGate] = 165;
 	while(true);
 }
 
@@ -290,6 +293,8 @@ task main() {
 	//pause(0.5);
 	//motor[liftStageOne]=0;
 	servo[bucketGate] = 10;
-	Ramp();
+	//Ramp();
+	startTask(scoreAutoBall);
+	while(true);
 }
 #endif
