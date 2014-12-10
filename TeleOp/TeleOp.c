@@ -60,10 +60,10 @@ task arm() {
 			}
 
 			if(joy2Btn(3)){
-				servo[bucketGate] = 70;
+				servo[bucketGate] = 165;
 			}
 			else{
-				servo[bucketGate] = 255;
+				servo[bucketGate] = 9;
 			}
 
 			if(joy2Btn(5)){
