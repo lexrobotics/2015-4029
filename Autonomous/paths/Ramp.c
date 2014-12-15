@@ -194,21 +194,45 @@ task scoreAutoBall() {
 	}
 	nxtDisplayCenteredTextLine(2, "there");
 	servo[bucketTilt] = 225;
-	pause(0.5);
+	pause(1);
 	servo[bucketGate] = 165;
-	while(true);
+	pause(0.5);
+	servo[bucketGate] = 10;
+	pause(0.5);
+	servo[bucketTilt] = 120;
+	pause(0.5);
+	while(abs(nMotorEncoder[liftStageOne]) > 20 * 280) {
+		nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
+		if(abs(nMotorEncoder[liftStageOne]) > 19*280)
+			motor[liftStageOne] = -100;
+		else
+			motor[liftStageOne] = 0;
+	}
+	servo[bucketTilt] = 135;
+	while(abs(nMotorEncoder[liftStageOne]) > 3*280) {
+		nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
+		if(abs(nMotorEncoder[liftStageOne]) > 3*280)
+			motor[liftStageOne] = -100;
+		else
+			motor[liftStageOne] = 0;
+	}
+	motor[liftStageOne] = 0;
+	nxtDisplayCenteredTextLine(2, "done");
 }
 
 void Ramp(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
 	startTask(init);
-	moveDistancePID(-90, 0.02, 0);
+	moveDistancePID(-97, 0.02, 0);
+	StartTask(scoreAutoBall);
 	grabTube();
 	// bring tube to goal
-	//scoreAutoBall();
-	turnDistancePID(40);
-	moveDistance(100, 70);
+	//turnDistancePID(40);
+	turnDistance(100, 20);
+	moveDistance(100, 10);
+	turnDistance(100, 20);
+	moveDistance(100, 60);
 	pause(0.5);
 	turnDistance(100, 170);
 	resetEncoders();
@@ -220,11 +244,13 @@ void Ramp(){
 	//parallel and get in front of ramp
 	turnUltra(0);
 	turnDistance(100, 210);
+	/*
 	moveDistance(100, 5);
-	tillFront(30,true);
+	tillFront(50,true);
 	pause(0.5);
 	parallel(50);
 	pause(0.5);
+	*/
 	tillBack(-30,false, 60);
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	pause(0.2);
@@ -289,12 +315,9 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	//motor[liftStageOne] = 50;
-	//pause(0.5);
-	//motor[liftStageOne]=0;
 	servo[bucketGate] = 10;
-	//Ramp();
-	startTask(scoreAutoBall);
+	servo[bucketTilt] = 255;
 	while(true);
+	Ramp();
 }
 #endif
