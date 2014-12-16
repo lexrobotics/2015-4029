@@ -133,13 +133,16 @@ void turnUltra(int angle) {
 	ultraAngle = angle;
 	StartTask(turnUltraTask);
 }
-void sweep(){
-	turn(70);
-	int prevValue = SensorValue[backUltra];
-	while(SensorValue[backUltra] > prevValue - 30) {
-		prevValue = SensorValue[backUltra];
+void sweep(int afterAngle) {
+	turn(30);
+	float sum = SensorValue[backUltra];
+	int ct = 1;
+	while(SensorValue[backUltra] - sum/ct > -2){
+		sum += SensorValue[backUltra];
+		ct++;
 	}
 	move(0);
+	turnDistance(50, afterAngle);
 }
 void tillBackWithFilter(int speed,bool sees){
 	waitForUltra();
@@ -183,7 +186,8 @@ task scoreAutoBall() {
 	nMotorEncoder[liftStageOne] = 0;
 	nMotorEncoder[liftStageTwo] = 0;
 	while(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET || abs(nMotorEncoder[liftStageTwo]) < UPPER_LIFT_TARGET) {
-		if(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET)
+	nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
+	if(abs(nMotorEncoder[liftStageOne]) < LOWER_LIFT_TARGET)
 			motor[liftStageOne] = 100;
 		else
 			motor[liftStageOne] = 0;
@@ -231,7 +235,7 @@ void Ramp(){
 	//turnDistancePID(40);
 	turnDistance(100, 20);
 	moveDistance(100, 10);
-	turnDistance(100, 20);
+	turnDistance(100, 17);
 	moveDistance(100, 60);
 	pause(0.5);
 	turnDistance(100, 170);
@@ -244,34 +248,38 @@ void Ramp(){
 	//parallel and get in front of ramp
 	turnUltra(0);
 	turnDistance(100, 210);
-	/*
-	moveDistance(100, 5);
-	tillFront(50,true);
-	pause(0.5);
-	parallel(50);
-	pause(0.5);
-	*/
-	tillBack(-30,false, 60);
+
+	//moveDistance(100, 5);
+	//tillFront(50,true);
+	//pause(0.5);
+	//parallel(50);
+	//pause(0.5);
+
+	//tillBack(-30,false, 60);
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	pause(0.2);
 	turnDistance(50,30);
-	moveDistance(-50, 5);
-	turnUltra(30);
+	moveDistance(-50, 50);
+	turnDistance(50, 20);
+	turnUltra(45);
 	//get within range
 	waitForUltra();
 	move(-70);
 	while(SensorValue[backUltra]>36){};
 	move(0);
-	//parrallell to wall
+
 	turnUltra(0);
-	pause(0.5);
-	parallel(50);
+	waitForUltra();
+	parallel(40);
 	pause(0.5);
 	turnUltra(90);
-	tillBack(-50,true, 60);
+	waitForUltra();
+	tillBack(-50,true, 55);
 	move(0);
+	pause(0.3);
 	//swivel and find tube
-	sweep();
+	sweep(17);
+
 	//Use ultrasonics to calculate angle needed to reach second tube
 	/*float d1 = SensorValue[backUltra] + 26 - 30.0;
 	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
@@ -298,16 +306,24 @@ void Ramp(){
 	turnUltra(0);
 	turnDistance(50, 30);
 	moveDistance(50, 12);
-		pause(1);
-	parallel(50);
-	pause(1);
-	moveDistance(50, 12);
+	pause(0.5);
+	parallel(30);
+	pause(0.5);
+	turnUltra(90);
+	waitForUltra();
+	int x = SensorValue[backUltra];
+	int y = SensorValue[frontUltra];
+	float angle = atan((170.0 - y)/(365.0 - x)) * (180 / PI);
+	turnDistance(50, angle);
+	moveDistance(50, 36);
+	/*moveDistance(50, 12);
 	turnDistance(50, 35);
-	moveDistance(100, 70);
+	moveDistance(100, 70);*/
 	turnDistance(100, 200);
-	resetEncoders();
-	while(SensorValue[color] == 1 && nMotorEncoder[rightMotors] < inchesToEncoder(30)) {
-		move(-30);
+	turnUltra(90);
+	waitForUltra();
+	while(SensorValue[backUltra] > 65) {
+		move(-100);
 	}
 	move(0);
 	startTask(releaseTube);
@@ -315,9 +331,13 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	servo[bucketGate] = 10;
-	servo[bucketTilt] = 255;
-	while(true);
-	Ramp();
+	//servo[bucketGate] = 10;
+	//pause(0.5);
+	//servo[bucketTilt] = 255;
+	//Ramp();
+	startTask(scoreAutoBall);
+	while(true){};
+	//turnUltra(0);
+
 }
 #endif
