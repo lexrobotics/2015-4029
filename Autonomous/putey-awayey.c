@@ -7,7 +7,7 @@
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     spinner,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    rearUltraServo,       tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    bucketTilt,           tServoStandard)
@@ -22,6 +22,7 @@ task main()
 	bool stageOne = true;
 
 	while(true) {
+		nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
 		if(nNxtButtonPressed == 3) {
 			stageOne = !stageOne;
 			wait1Msec(500);
