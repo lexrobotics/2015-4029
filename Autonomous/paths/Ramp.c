@@ -272,7 +272,7 @@ void Ramp(){
 	waitForUltra();
 	pause(0.2);
 	parallel(40);
-	pause(0.5);
+
 	turnUltra(95);
 	waitForUltra();
 	tillBack(-50,true, 52);
@@ -301,9 +301,9 @@ void Ramp(){
 	move(-40);
 	while(SensorValue[backUltra]>30){};
 	move(0);
-	moveDistance(-50, 7);
+	moveDistance(-50, 5);
 	grabTube();
-	turnDistance(-100, 5);
+	turnDistance(-100, 2);
 	moveDistance(100, 100);
 	//return to parking goal
 	/*turnUltra(0);
