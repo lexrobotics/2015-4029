@@ -199,23 +199,26 @@ task scoreAutoBall() {
 	motor[liftStageOne] = 0;
 	motor[liftStageTwo] = 0;
 	nxtDisplayCenteredTextLine(2, "there");
-	servo[bucketTilt] = 225;
+	servo[bucketTilt] = 245;
 	pause(1);
-	servo[bucketGate] = 165;
-	pause(0.5);
+	servo[bucketGate] = 105;
+	pause(0.8);
 	servo[bucketGate] = 10;
 	pause(0.5);
-	servo[bucketTilt] = 120;
+	servo[bucketTilt] = 80;
 	pause(0.5);
-	while(abs(nMotorEncoder[liftStageTwo]) > 0.7 * 1440) {
+	ClearTimer(T3);
+	while(abs(nMotorEncoder[liftStageTwo]) > 0.5 * 1440 && time1[T3] < 1500) {
 		nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
-		if(abs(nMotorEncoder[liftStageTwo]) > 0.7 * 1440)
+		if(abs(nMotorEncoder[liftStageTwo]) > 0.5 * 1440)
 			motor[liftStageTwo] = 100;
 		else
 			motor[liftStageTwo] = 0;
 	}
-	servo[bucketTilt] = 135;
-	while(abs(nMotorEncoder[liftStageTwo]) > 0.4 * 1440) {
+	motor[liftStageTwo] = 0;
+	servo[bucketTilt] = 120;
+	ClearTimer(T3);
+	while(abs(nMotorEncoder[liftStageTwo]) > 0.4 * 1440 && time1[T3] < 1000) {
 		nxtDisplayCenteredTextLine(2, "%d", nMotorEncoder[liftStageOne]);
 		if(abs(nMotorEncoder[liftStageTwo]) > 0.4 * 1440)
 			motor[liftStageTwo] = 100;
@@ -234,7 +237,7 @@ void Ramp(){
 	pause(0.5);
 	startTask(init);
 	moveDistancePID(-97, 0.02, 0);
-	//StartTask(scoreAutoBall);
+	StartTask(scoreAutoBall);
 	grabTube();
 	// bring tube to goal
 	//turnDistancePID(40);
@@ -263,11 +266,11 @@ void Ramp(){
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
 	moveDistance(-100, 50);
-	turnDistance(100, 20);
+	turnDistance(100, 30);
 	turnUltra(45);
 	//get within range
 	waitForUltra();
-	tillBack(-70,true,36);
+	tillBack(-70,true,40);
 	turnUltra(0);
 	waitForUltra();
 	pause(0.2);
@@ -302,8 +305,18 @@ void Ramp(){
 	while(SensorValue[backUltra]>30){};
 	move(0);
 	moveDistance(-50, 5);
+	turnUltra(0);
 	grabTube();
-	turnDistance(-100, 2);
+	waitForUltra();
+	float f = SensorValue[frontUltra];
+	float b = SensorValue[backUltra];
+	float angle = asin((f-b)/24.0) * (180.0/PI);
+	float diff = angle - 17.0;
+	if(diff < 0)
+		turnDistance(-100, -1*diff);
+	else if(diff > 0)
+		turnDistance(100, diff);
+	//turnDistance(100, 5);
 	moveDistance(100, 100);
 	//return to parking goal
 	/*turnUltra(0);
@@ -322,23 +335,25 @@ void Ramp(){
 	/*moveDistance(50, 12);
 	turnDistance(50, 35);
 	moveDistance(100, 70);*/
-	turnDistance(100, 200);
+	turnDistance(100, 210);
 	turnUltra(85);
 	waitForUltra();
 	while(SensorValue[backUltra] > 65) {
 		move(-100);
 	}
 	move(0);
-	startTask(releaseTube);
+	StartTask(releaseTube);
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
 	servo[bucketGate] = 10;
 	pause(0.5);
-	servo[bucketTilt] = 255;
+	servo[bucketTilt] = 60;
+	servo[grabber] = 127;
+	//StartTask(scoreAutoBall);
+	//while(true);
 	Ramp();
-	////turnUltra(0);
-
+	//turnUltra(0);
 }
 #endif

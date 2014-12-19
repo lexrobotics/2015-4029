@@ -93,6 +93,8 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 		error = target - nMotorEncoder[rightMotors];
 		speed = updatePID(forwardsPID, error, nMotorEncoder[rightMotors]);
 		writeDebugStreamLine("%f", speed);
+		if(abs(speed) < 20)
+			speed = sgn(speed) * 20;
 		move(speed);
 	}
 	move(0);

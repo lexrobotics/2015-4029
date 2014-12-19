@@ -38,9 +38,9 @@ task main()
 		}
 		else {
 			if(nNxtButtonPressed == 1)
-				motor[liftStageTwo] = 100;
-			else if(nNxtButtonPressed == 2)
 				motor[liftStageTwo] = -100;
+			else if(nNxtButtonPressed == 2)
+				motor[liftStageTwo] = 100;
 			else
 				motor[liftStageTwo] = 0;
 		}
