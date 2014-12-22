@@ -7,6 +7,12 @@ void resetEncoders() {
 	nMotorEncoder[motorFrontLeft] = 0;
 	nMotorEncoder[motorFrontRight] = 0;
 }
+void turnInPlace(int speed){
+	motor[motorFrontLeft] = -speed;
+	motor[motorBackRight] = speed;
+	motor[motorFrontRight] = speed;
+	motor[motorBackLeft] = -speed;
+}
 void translateRT(int speed, int angle) {
 	if(speed > 60)
 		speed = 60;
@@ -24,4 +30,38 @@ void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorBackRight] = fwd + right;
 	motor[motorFrontRight] = fwd - right;
 	motor[motorBackLeft] = fwd - right;
+}
+
+int Ultrasonic(int sensor_index){
+	switch(sensor_index){
+		case 0 : {
+			return SensorValue[frontUltra];
+		}
+		case 1 : {
+			return SensorValue[backUltra];
+		}
+		case 2 : {
+			break;
+		}
+		case 3 : {
+			break;
+		}
+	}
+
+}
+
+void tillSense(int speed, int angle, bool sees , int threshold, int sensor_index){
+		while((Ultrasonic(sensor_index)<threshold)==sees){
+					translateRT(speed,angle);
+		}
+}
+
+void parallel(int speed, int threshold, int sensorA, int sensorB){
+	int valA = Ultrasonic(sensorA);
+	int valB = Ultrasonic(sensorB);
+	while (abs(valA - valB) > threshold) {
+		valA = Ultrasonic(sensorA);
+		valB = Ultrasonic(sensorB);
+		turnInPlace(speed * (valA>valB));
+	}
 }
