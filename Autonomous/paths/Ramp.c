@@ -254,7 +254,7 @@ void Ramp(){
 	startTask(releaseTube);
 	//parallel and get in front of ramp
 	turnUltra(0);
-	turnDistance(100, 240);
+	turnDistance(100, 230);
 
 	//moveDistance(100, 5);
 	//tillFront(50,true);
@@ -266,7 +266,7 @@ void Ramp(){
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
 	moveDistance(-100, 50);
-	turnDistance(100, 30);
+	turnDistance(100, 40);
 	turnUltra(45);
 	//get within range
 	waitForUltra();
@@ -307,7 +307,7 @@ void Ramp(){
 	moveDistance(-50, 5);
 	turnUltra(0);
 	grabTube();
-	waitForUltra();
+	/*waitForUltra();
 	float f = SensorValue[frontUltra];
 	float b = SensorValue[backUltra];
 	float angle = asin((f-b)/24.0) * (180.0/PI);
@@ -315,8 +315,8 @@ void Ramp(){
 	if(diff < 0)
 		turnDistance(-100, -1*diff);
 	else if(diff > 0)
-		turnDistance(100, diff);
-	//turnDistance(100, 5);
+		turnDistance(100, diff);*/
+	turnDistance(100, 5);
 	moveDistance(100, 100);
 	//return to parking goal
 	/*turnUltra(0);
@@ -347,12 +347,10 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	servo[bucketGate] = 10;
+	servo[bucketGate] = 5;
 	pause(0.5);
 	servo[bucketTilt] = 60;
 	servo[grabber] = 127;
-	//StartTask(scoreAutoBall);
-	//while(true);
 	Ramp();
 	//turnUltra(0);
 }
