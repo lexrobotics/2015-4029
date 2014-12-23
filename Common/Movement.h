@@ -46,26 +46,6 @@ void resetEncoders() {
 	nMotorEncoder[motorFrontRight] = 0;
 }
 
-
-
-/*
-Ultrasonic business
-*/
-//Gets ultrasonic with index (whatever)
-int readUltra(int sensor_index){
-	switch(sensor_index){
-		case 0 :
-			return SensorValue[frontUltra];
-		case 1 :
-			return SensorValue[backUltra];
-		case 2 :
-			break;
-		case 3 :
-			break;
-	}
-	return -1;
-}
-
 //Turns the ultrasonic indicated to the angle indicated.
 //Asynchronous, so you have to wait a bit.
 void turnUltra(int servo_index, int angle) {
@@ -74,11 +54,11 @@ void turnUltra(int servo_index, int angle) {
 	switch(servo_index) {
 		case 0:
 			ZERO = 192;
-			servo[frontUltraServo] = ZERO - scaled;
+			servo[servo1] = ZERO - scaled;
 			break;
 		case 1:
 			ZERO = 150;
-			servo[rearUltraServo] =  ZERO + scaled ;
+			servo[servo2] =  ZERO + scaled ;
 			break;
 	}
 }
@@ -89,30 +69,31 @@ Hybrid functions
 */
 
 
-void tillSense(int speed, int angle, bool see_now, int threshold, int sensor_index){
-		while((Ultrasonic(sensor_index)<threshold)==see_now){
+void tillSense(int speed, int angle, bool see_now, int threshold, tSensors sonar){
+		while((SensorValue[sonar]<threshold)==see_now){
 					translateRT(speed,angle);
 		}
 
 		translateRT(0, 0);
 }
 
-void changeDetection(int speed, int angle, int jumpThreshold, int sensor_index) {
-	int dist = Ultrasonic(sensor_index);
+void changeDetection(int speed, int angle, int jumpThreshold, tSensors sonar) {
+	int dist = SensorValue[sonar];
 
-	while (abs(dist - Ultrasonic(sensor_index)) < jumpThreshold) {
+	while (abs(dist - SensorValue[sonar]) < jumpThreshold) {
 		translateRT(speed, angle);
+		dist = SensorValue[sonar];
 	}
 
 	translateRT(0, 0);
 }
 
-void parallel(int speed, int threshold, int sensorA, int sensorB){
-	int valA = Ultrasonic(sensorA);
-	int valB = Ultrasonic(sensorB);
+void parallel(int speed, int threshold, tSensors sensorA, tSensors sensorB){
+	int valA = SensorValue[sensorA];
+	int valB = SensorValue[sensorB];
 	while (abs(valA - valB) > threshold) {
-		valA = Ultrasonic(sensorA);
- 		valB = Ultrasonic(sensorB);
+		valA = SensorValue[sensorA];
+ 		valB = SensorValue[sensorB];
 		turnInPlace(speed * (valA>valB ? 1 : -1));
 	}
 	turnInPlace(0);
