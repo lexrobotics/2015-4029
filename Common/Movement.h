@@ -1,18 +1,21 @@
-void translateRT(int speed, int angle);
-void translateXY(int fwd, int right);
 
-void resetEncoders() {
-	nMotorEncoder[motorBackLeft] = 0;
-	nMotorEncoder[motorBackRight] = 0;
-	nMotorEncoder[motorFrontLeft] = 0;
-	nMotorEncoder[motorFrontRight] = 0;
+/*
+Motor business
+*/
+void fullStop(){
+	motor[motorFrontLeft] = 0;
+	motor[motorFrontRight] = 0;
+	motor[motorBackLeft] = 0;
+	motor[motorBackRight] = 0;
 }
+
 void turnInPlace(int speed){
 	motor[motorFrontLeft] = -speed;
 	motor[motorBackRight] = speed;
 	motor[motorFrontRight] = speed;
 	motor[motorBackLeft] = -speed;
 }
+
 void translateRT(int speed, int angle) {
 	if(speed > 60)
 		speed = 60;
@@ -32,23 +35,59 @@ void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorBackLeft] = fwd - right;
 }
 
-int Ultrasonic(int sensor_index){
-	switch(sensor_index){
-		case 0 : {
-			return SensorValue[frontUltra];
-		}
-		case 1 : {
-			return SensorValue[backUltra];
-		}
-		case 2 : {
-			break;
-		}
-		case 3 : {
-			break;
-		}
-	}
 
+/*
+Encoder business
+*/
+void resetEncoders() {
+	nMotorEncoder[motorBackLeft] = 0;
+	nMotorEncoder[motorBackRight] = 0;
+	nMotorEncoder[motorFrontLeft] = 0;
+	nMotorEncoder[motorFrontRight] = 0;
 }
+
+
+
+/*
+Ultrasonic business
+*/
+//Gets ultrasonic with index (whatever)
+int readUltra(int sensor_index){
+	switch(sensor_index){
+		case 0 :
+			return SensorValue[frontUltra];
+		case 1 :
+			return SensorValue[backUltra];
+		case 2 :
+			break;
+		case 3 :
+			break;
+	}
+	return -1;
+}
+
+//Turns the ultrasonic indicated to the angle indicated.
+//Asynchronous, so you have to wait a bit.
+void turnUltra(int servo_index, int angle) {
+	int scaled = angle * 256.0/180.0;
+	int ZERO;
+	switch(servo_index) {
+		case 0:
+			ZERO = 192;
+			servo[frontUltraServo] = ZERO - scaled;
+			break;
+		case 1:
+			ZERO = 150;
+			servo[rearUltraServo] =  ZERO + scaled ;
+			break;
+	}
+}
+
+
+/*
+Hybrid functions
+*/
+
 
 void tillSense(int speed, int angle, bool see_now, int threshold, int sensor_index){
 		while((Ultrasonic(sensor_index)<threshold)==see_now){
@@ -58,7 +97,7 @@ void tillSense(int speed, int angle, bool see_now, int threshold, int sensor_ind
 		translateRT(0, 0);
 }
 
-void changeDetection(int speed, int angle, int jumpThreshold, int sensor_index)
+void changeDetection(int speed, int angle, int jumpThreshold, int sensor_index) {
 	int dist = Ultrasonic(sensor_index);
 
 	while (abs(dist - Ultrasonic(sensor_index)) < jumpThreshold) {
@@ -73,7 +112,8 @@ void parallel(int speed, int threshold, int sensorA, int sensorB){
 	int valB = Ultrasonic(sensorB);
 	while (abs(valA - valB) > threshold) {
 		valA = Ultrasonic(sensorA);
-		valB = Ultrasonic(sensorB);
-		turnInPlace(speed * (valA>valB));
+ 		valB = Ultrasonic(sensorB);
+		turnInPlace(speed * (valA>valB ? 1 : -1));
 	}
+	turnInPlace(0);
 }
