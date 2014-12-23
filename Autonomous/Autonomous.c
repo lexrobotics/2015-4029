@@ -1,12 +1,12 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  none)
-#pragma config(Sensor, S3,     frontUltra,     sensorSONAR)
-#pragma config(Sensor, S4,     backUltra,      sensorSONAR)
+#pragma config(Sensor, S3,     ultra1,         sensorSONAR)
+#pragma config(Sensor, S4,     ultra0,         sensorSONAR)
 #pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorBackRight, tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     motorFrontRight, tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Servo,  srvo_S1_C3_1,    frontUltraServo,      tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    rearUltraServo,       tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_1,    servo1,               tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    servo2,               tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
@@ -19,12 +19,14 @@ task main() {
 	resetEncoders();
 
 	fullStop();
+	for(int i = 30; i < 120; i+=2) {
+		turnUltra(0, i);
+		wait1Msec(100);
+		writeDebugStreamLine("(%d, %d)", i, SensorValue[ultra0]);
+	}
 	turnUltra(0, 0);
 	turnUltra(1, 0);
-	wait10Msec(300);
+	wait10Msec(10);
+	parallel(20, 0, 0, 1);
 
-	turnUltra(0, 90);
-	turnUltra(1, 90);
-	//tillSense(-100, 0, true, 30, 0);
-	wait10Msec(100);
 }
