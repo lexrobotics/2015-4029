@@ -117,3 +117,9 @@ void parallel(int speed, int threshold, int sensorA, int sensorB){
 	}
 	turnInPlace(0);
 }
+
+
+task main ()
+{
+turnInPlace(100);
+}
