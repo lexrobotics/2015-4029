@@ -1,3 +1,22 @@
+#include "..\common\PID.h"
+
+/*
+Movement constants
+*/
+const float DIAMETER = 4.0; //diameter of wheel in inches
+const float ENCODER_SCALE = 1120.0; //number of encoder counts per rotation
+const float CIRCUMFERENCE = DIAMETER * PI;
+const float TURN_RADIUS = 12.73; //center of robot to turning circle in inches
+const float TURN_CIRCUMFERENCE = 2.0 * TURN_RADIUS * PI; //circumference of circle robot turns in
+const float TURN_SCALAR = 1.1; //because it's not a square
+
+void fullStop();
+void turn(int speed);
+void translateRT(int speed, int angle);
+void translateXY(int fwd, int right);
+void resetEncoders();
+int inchesToEncoder(int distance);
+int degreesToEncoder(int angle);
 
 /*
 Motor business
@@ -9,11 +28,110 @@ void fullStop(){
 	motor[motorBackRight] = 0;
 }
 
-void turnInPlace(int speed){
-	motor[motorFrontLeft] = -speed;
+void move(int speed) {
+	motor[motorFrontLeft] = speed;
 	motor[motorBackRight] = speed;
 	motor[motorFrontRight] = speed;
-	motor[motorBackLeft] = -speed;
+	motor[motorBackLeft] = speed;
+}
+
+void turn(int speed){
+	motor[motorFrontLeft] = speed;
+	motor[motorBackRight] = -speed;
+	motor[motorFrontRight] = -speed;
+	motor[motorBackLeft] = speed;
+}
+
+void moveDistance(int speed, int distance) {
+	int target = inchesToEncoder(distance);
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) {
+			move(speed); //move at desired speed
+		}
+
+	move(0); //stop
+}
+
+void moveDistancePID(int distance) {
+	PID forwardsPID;
+ 	forwardsPID.Kp = 0.04;
+ 	forwardsPID.Ki = 0.00001;
+ 	forwardsPID.Kd = 0;
+ 	forwardsPID.integral = 0;
+
+	float target = inchesToEncoder(distance);
+	float error = target;
+	float speed = 100;
+
+	resetEncoders();
+	while(abs(error) > 50) {
+		error = target - nMotorEncoder[motorBackRight];
+		speed = updatePID(forwardsPID, error, nMotorEncoder[motorBackRight]);
+		writeDebugStreamLine("%f", speed);
+		move(speed);
+	}
+	move(0);
+}
+void moveDistancePID(int distance, float _Kp, float _Ki) {
+	PID forwardsPID;
+ 	forwardsPID.Kp = _Kp;
+ 	forwardsPID.Ki = _Ki;
+ 	forwardsPID.Kd = 0;
+ 	forwardsPID.integral = 0;
+
+	float target = inchesToEncoder(distance);
+	float error = target;
+	float speed = 100;
+
+	resetEncoders();
+	while(abs(error) > 50) {
+		error = target - nMotorEncoder[motorBackRight];
+		speed = updatePID(forwardsPID, error, nMotorEncoder[motorBackRight]);
+		writeDebugStreamLine("%f", speed);
+		if(abs(speed) < 20)
+			speed = sgn(speed) * 20;
+		move(speed);
+	}
+	move(0);
+}
+
+void turnDistancePID(int angle) {
+	PID turnPID;
+ 	turnPID.Kp = 0.1;
+ 	turnPID.Ki = 0.0001;
+ 	turnPID.Kd = 0;
+ 	turnPID.integral = 0;
+
+	float target = -degreesToEncoder(angle);
+	float error = target;
+	float speed = 100;
+
+	resetEncoders();
+	while(abs(error) > 25) {
+		error = target - nMotorEncoder[motorBackRight];
+		speed = updatePID(turnPID, error, nMotorEncoder[motorBackRight]);
+		writeDebugStreamLine("%f", speed);
+		if(abs(speed) > 100)
+			speed = sgn(speed) * 100;
+		turn(-speed);
+	}
+	move(0);
+}
+
+void turnDistance(int speed, int angle) {
+	int target = degreesToEncoder(angle);
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) turn(speed); //turn at desired speed
+
+	turn(0); //stop
+}
+
+void pause(float seconds) {
+	wait1Msec(seconds * 1000);
 }
 
 void translateRT(int speed, int angle) {
@@ -46,6 +164,14 @@ void resetEncoders() {
 	nMotorEncoder[motorFrontRight] = 0;
 }
 
+int inchesToEncoder(int distance) {
+	 return distance/CIRCUMFERENCE * ENCODER_SCALE;
+}
+
+int degreesToEncoder(int angle) {
+	return (angle/360.0 * TURN_CIRCUMFERENCE)/CIRCUMFERENCE * ENCODER_SCALE * TURN_SCALAR;
+}
+
 //Turns the ultrasonic indicated to the angle indicated.
 //Asynchronous, so you have to wait a bit.
 void turnUltra(int servo_index, int angle) {
@@ -63,15 +189,13 @@ void turnUltra(int servo_index, int angle) {
 	}
 }
 
-
 /*
 Hybrid functions
 */
-
-
 void tillSense(int speed, int angle, bool see_now, int threshold, tSensors sonar){
+		translateRT(speed,angle);
 		while((SensorValue[sonar]<threshold)==see_now){
-					translateRT(speed,angle);
+
 		}
 
 		translateRT(0, 0);
@@ -94,13 +218,7 @@ void parallel(int speed, int threshold, tSensors sensorA, tSensors sensorB){
 	while (abs(valA - valB) > threshold) {
 		valA = SensorValue[sensorA];
  		valB = SensorValue[sensorB];
-		turnInPlace(speed * (valA>valB ? 1 : -1));
+		turn(speed * (valA>valB ? 1 : -1));
 	}
-	turnInPlace(0);
-}
-
-
-task main ()
-{
-turnInPlace(100);
+	turn(0);
 }

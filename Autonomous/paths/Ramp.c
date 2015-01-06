@@ -1,6 +1,8 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  none)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S3,     ultra1,         sensorSONAR)
 #pragma config(Sensor, S4,     ultra0,         sensorSONAR)
+#pragma config(Motor,  motorB,           ,             tmotorNXT, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorBackRight, tmotorTetrix, PIDControl, reversed, encoder)
@@ -100,12 +102,11 @@ void Ramp(){
 	//StartTask(scoreAutoBall);
 	grabTube();
 	// bring tube to goal
-	//turnDistancePID(40);
 	turnDistance(50, 20);
 	moveDistance(50, 10);
 	turnDistance(50, 10);
 	moveDistance(50, 60);
-	turnDistance(30, 150);
+	turnDistance(50, 150);
 	resetEncoders();
 	turnUltra(0, 90);
 	while(SensorValue[ultra0] > 65) {
@@ -113,109 +114,46 @@ void Ramp(){
 	}
 	startTask(releaseTube);
 	//parallel and get in front of ramp
-	//turnUltra(0);
-	turnDistance(50, 230);
-	//moveDistance(100, 5);
-	//tillFront(50,true);
-	//pause(0.5);
-	//parallel(50);
-	//pause(0.5);
 
-	//tillBack(-30,false, 60);
+	turnDistance(50, 230);
+
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
-	moveDistance(-50, 60);
-	turnDistance(-50, 20);
+	moveDistance(-50, 75);
+	turnDistance(-50, 25);
 
 	pause(0.2);
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	pause(0.3);
 
+
 	parallel(30, 0, ultra0, ultra1);
 	pause(0.2);
-	tillSense(-50, 90, false, 20, ultra1);
-	pause(0.2);
-	//turnUltra(95);
-	//waitForUltra();
-	//tillBack(-50,true, 52);
-	pause(0.3);
-	turnUltra(0, 90);
-	pause(0.2);
-	tillSense(-50, 0, false, 30, ultra0);
-	//swivel and find tube
-	//sweep(17);
-
-	//Use ultrasonics to calculate angle needed to reach second tube
-	/*float d1 = SensorValue[backUltra] + 26 - 30.0;
-	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
-	int distFromTube = sqrt(pow(d1, 2) + pow(d2, 2));
-	float angle = (180/PI) * atan(d2/d1);
-
-	turnDistancePID(angle);
-	*/
-	/*move(0);
-	while(true) {
-		nxtDisplayCenteredTextLine(1, "f: %d, b: %d", SensorValue[frontUltra], SensorValue[backUltra]);
-		nxtDisplayCenteredTextLine(2, "f: %d, b: %d", d1, d2);
-		nxtDisplayCenteredTextLine(3, "a: %f", angle);
-	}*/
-	//Turn ultrasonic and wait to see tube in range
+	tillSense(-50, 90, false, 22, ultra1);
 	pause(0.5);
-	/*turnUltra(135);
-	move(-40);
-	while(SensorValue[backUltra]>30){};
-	move(0);
-	moveDistance(-50, 5);
-	turnUltra(0);*/
+
+	turnUltra(0, 120);
+	pause(0.75);
+	tillSense(-50, 0, false, 20, ultra0);
+
 	grabTube();
-	/*waitForUltra();
-	float f = SensorValue[frontUltra];
-	float b = SensorValue[backUltra];
-	float angle = asin((f-b)/24.0) * (180.0/PI);
-	float diff = angle - 17.0;
-	if(diff < 0)
-		turnDistance(-100, -1*diff);
-	else if(diff > 0)
-		turnDistance(100, diff);*/
-	//turnDistance(100, 5);
-	//moveDistance(100, 100);
-	//return to parking goal
-	/*turnUltra(0);
-	turnDistance(50, 15);
-	moveDistance(50, 12);
-	pause(0.2);
-	parallel(50);
-	pause(0.2);
-	turnUltra(90);
-	waitForUltra();
-	int x = SensorValue[backUltra];
-	int y = SensorValue[frontUltra];
-	float angle = atan((170.0 - y)/(365.0 - x)) * (180 / PI);
-	turnDistance(100, angle);
-	moveDistance(100, 36); */
-	/*moveDistance(50, 12);
-	turnDistance(50, 35);
-	moveDistance(100, 70);*/
-	//turnDistance(100, 210);
-	/*turnUltra(85);
-	waitForUltra();
-	while(SensorValue[backUltra] > 65) {
+	turnDistance(50, 20);
+	moveDistance(50, 34);
+	//turnDistance(50, 10);
+	//moveDistance(50, 60);
+	//turnDistance(30, 150);
+
+	resetEncoders();
+	turnUltra(0, 90);
+	while(SensorValue[ultra0] > 65) {
 		move(-100);
-	}*/
-	move(0);
+	}
 	StartTask(releaseTube);
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	/*servo[bucketGate] = 5;
-	pause(0.5);
-	servo[bucketTilt] = 60;
-	servo[grabber] = 127;*/
-
 	Ramp();
-
-	//turnUltra(0);
 }
 #endif
