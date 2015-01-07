@@ -128,7 +128,7 @@ void Ramp(){
 	pause(0.3);
 
 
-	parallel(30, 0, ultra0, ultra1);
+	parallel(20, 0, ultra0, ultra1);
 	pause(0.2);
 	tillSense(-50, 90, false, 22, ultra1);
 	pause(0.5);
@@ -153,6 +153,6 @@ void Ramp(){
 #ifndef AUTO_COMPETITION
 task main() {
 	//Ramp();
-	translateDistance(100, 30, 24);
+	translateDistance(100, 45, 24);
 }
 #endif

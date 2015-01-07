@@ -98,8 +98,20 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 	move(0);
 }
 
+int min(int a, int b)
+{
+	if (a < b)
+		return a;
+	else
+		return b;
+}
+
 void translateDistance(int speed, int angle, int distance) {
-	int target = inchesToEncoder(distance * (abs(sin(PI * angle / 180.0)) + abs(cos(PI * angle / 180.0))));
+	int target;
+	if (angle % 90 == 0)
+		target = inchesToEncoder(distance);
+	else
+		target = inchesToEncoder(distance * min(abs(1/cos(PI * angle / 180.0)), abs(1/sin(PI * angle / 180.0))));
 	resetEncoders();
 
 	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
@@ -198,7 +210,7 @@ void turnUltra(int servo_index, int angle) {
 			servo[servo1] = ZERO - scaled;
 			break;
 		case 1:
-			ZERO = 150;
+			ZERO = 140;
 			servo[servo2] =  ZERO + scaled ;
 			break;
 	}
