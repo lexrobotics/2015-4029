@@ -74,6 +74,7 @@ void moveDistancePID(int distance) {
 	}
 	move(0);
 }
+
 void moveDistancePID(int distance, float _Kp, float _Ki) {
 	PID forwardsPID;
  	forwardsPID.Kp = _Kp;
@@ -95,6 +96,20 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 		move(speed);
 	}
 	move(0);
+}
+
+void translateDistance(int speed, int angle, int distance) {
+	int target = inchesToEncoder(distance * (abs(sin(PI * angle / 180.0)) + abs(cos(PI * angle / 180.0))));
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)
+		&& abs(nMotorEncoder[motorFrontRight]) < abs(target)
+		&& abs(nMotorEncoder[motorBackLeft]) < abs(target)) {
+			translateRT(speed, angle); //move at desired speed
+		}
+
+	fullStop(); //stop
 }
 
 void turnDistancePID(int angle) {

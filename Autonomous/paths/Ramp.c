@@ -120,7 +120,7 @@ void Ramp(){
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
 	moveDistance(-50, 75);
-	turnDistance(-50, 25);
+	turnDistance(-50, 35);
 
 	pause(0.2);
 	turnUltra(0, 0);
@@ -139,10 +139,8 @@ void Ramp(){
 
 	grabTube();
 	turnDistance(50, 20);
-	moveDistance(50, 34);
-	//turnDistance(50, 10);
-	//moveDistance(50, 60);
-	//turnDistance(30, 150);
+	moveDistance(50, 94);
+	turnDistance(30, 150);
 
 	resetEncoders();
 	turnUltra(0, 90);
@@ -154,6 +152,7 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	Ramp();
+	//Ramp();
+	translateDistance(100, 30, 24);
 }
 #endif
