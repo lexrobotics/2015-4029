@@ -41,15 +41,9 @@ void Position1() {
 
 	parallel(30, 0, ultra0, ultra1);
 	pause(0.5);
-	tillSense(-50, 90, false, 35, ultra1);
- 	pause(0.5);
-	tillSense(-50, 0, true, 90, ultra1);
-	pause(0.1);
-	turnDistance(50, 85);
-	turnUltra(1, 0);
-	pause(0.1);
-	tillSense(-50, 0, false, 25, ultra0);
-	tillSense(-50, 0, true, 25, ultra0);
+	tillSense(-50, 0, true, 90, ultra0);
+	tillSense(-50, 90, false, 12, ultra0);
+ 	moveDistance(100, 12);
 }
 
 void Position2() {
@@ -58,31 +52,31 @@ void Position2() {
 	turnUltra(1, 0);
 	pause(0.1);
 	turnDistance(-50, 140);
-	translateDistance(50, 90, 10);
+	translateDistance(50, 90, 5);
 	pause(0.1);
-	tillSense(50, 0, false, 90, ultra0);
+	tillSense(50, 0, false, 90, ultra1);
 	moveDistance(50, 3);
-	pause(0.1);
-	parallel(30, 0, ultra0, ultra1);
-	pause(0.1);
-	tillSense(-50, 90, false, 30, ultra0);
-	tillSense(-50, 0, true, 90, ultra1);
-	pause(0.1);
-	turnDistance(50, 80);
-	turnUltra(1, 0);
-	pause(0.1);
-	tillSense(-50, 0, false, 25, ultra0);
-	tillSense(-50, 0, true, 30, ultra0);
+	tillSense(-50, 90, false, 3, ultra0);
+	moveDistance(50, 3);
+	//pause(0.1);
+	//parallel(30, 0, ultra0, ultra1);
+	//pause(0.1);
+	//tillSense(-50, 90, false, 30, ultra0);
+	//tillSense(-50, 0, true, 90, ultra1);
+	//pause(0.1);
+	//turnDistance(50, 90);
+	//turnUltra(1, 0);
+	//pause(0.1);
+	//tillSense(-50, 0, false, 25, ultra0);
+	//tillSense(-50, 0, true, 30, ultra0);
 }
 
 void Position3() {
 	sound(3,0.2);
 	turnUltra(0, 90);
-	tillSense(-50, 0, false, 20, ultra0);
-	turnDistance(-50, 90);
-	turnUltra(1, 0);
-	pause(0.1);
-	tillSense(50, 0, true, 25, ultra1);
+	turnDistance(50, 180);
+	translateDistance(50, 90, 8);
+	tillSense(50, 0, false, 90, ultra0);
 }
 
 int detectPosition(){
@@ -112,7 +106,7 @@ int detectPosition(){
 		return 2;
 }
 
-void CenterGoal() {
+void Kickstand() {
 	servo[grabber] = 127;
 	turnUltra(0, 90);
 	moveDistance(-50, 20);
@@ -135,6 +129,6 @@ void CenterGoal() {
 
 #ifndef AUTO_COMPETITION
 task main() {
-	CenterGoal();
+	Kickstand();
 }
 #endif

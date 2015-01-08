@@ -95,7 +95,7 @@ task scoreAutoBall() {
 */
 
 
-void Ramp(){
+void RampKickstand(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
 	startTask(init);
@@ -156,7 +156,7 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	Ramp();
+	RampKickstand();
 	//translateDistance(100, 45, 24);
 }
 #endif
