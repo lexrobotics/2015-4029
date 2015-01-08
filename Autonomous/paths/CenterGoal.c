@@ -20,7 +20,63 @@
 #include "../../Common/Movement.h"
 #define robotLength 12.0
 
+void sound(int number, float pausetime){
+	int i;
+	for(i=0; i<number;i++){
+		playsound(soundBlip);
+		pause(pausetime);
+	}
+}
+
 void Position1() {
+	sound(1,0);
+	turnUltra(0, 0);
+	turnUltra(1, 0);
+	pause(0.1);
+	moveDistance(-50, 8);
+	turnDistance(-50, 90);
+	pause(0.1);
+	tillSense(-50, 0, false, 90, ultra1);
+	pause(0.5);
+
+	parallel(30, 0, ultra0, ultra1);
+	pause(0.5);
+	tillSense(-50, 90, false, 35, ultra1);
+ 	pause(0.5);
+	tillSense(-50, 0, true, 90, ultra1);
+	pause(0.1);
+	turnDistance(50, 85);
+	turnUltra(1, 0);
+	pause(0.1);
+	tillSense(-50, 0, false, 25, ultra0);
+	tillSense(-50, 0, true, 30, ultra0);
+}
+
+void Position2() {
+	sound(2,0.2);
+	turnUltra(0, 0);
+	turnUltra(1, 0);
+	pause(0.1);
+	turnDistance(-50, 140);
+	translateDistance(50, 90, 10);
+	pause(0.1);
+	tillSense(50, 0, false, 90, ultra0);
+	moveDistance(50, 3);
+	pause(0.1);
+	parallel(30, 0, ultra0, ultra1);
+	pause(0.1);
+	tillSense(-50, 90, false, 30, ultra0);
+	tillSense(-50, 0, true, 90, ultra1);
+	pause(0.1);
+	turnDistance(50, 90);
+	turnUltra(1, 0);
+	pause(0.1);
+	tillSense(-50, 0, false, 25, ultra0);
+	tillSense(-50, 0, true, 30, ultra0);
+}
+
+void Position3() {
+	sound(3,0.2);
 	turnUltra(0, 90);
 	tillSense(-50, 0, false, 20, ultra0);
 	turnDistance(-50, 90);
@@ -29,41 +85,49 @@ void Position1() {
 	tillSense(50, 0, true, 25, ultra1);
 }
 
-void Position2() {
-	turnUltra(0, -10);
-	turnUltra(1, -10);
-	pause(0.1);
-	moveDistance(-50, 12);
-	turnDistance(-50, 45);
-	tillSense(-50, 0, false, 90, ultra1);
-	pause(0.2);
-	parallel(30, 0, ultra0, ultra1);
-}
-
-void CenterGoal() {
-	turnUltra(0, 100);
-	moveDistance(-50, 20);
-	pause(0.3);
-	float avg = 0;
+int detectPosition(){
+		float avg = 0;
 	const int READINGS = 30;
+	int READINGSARR[30];
 	for(int i=0; i<READINGS; i++) {
+		READINGSARR[i]=SensorValue[ultra0];
 		avg += SensorValue[ultra0];
 		wait1Msec(20):
 	}
 	avg /= READINGS;
-	int position;
-	if(avg < 60)
-		position = 1;
-	else if(110 > avg && avg > 65)
-		position = 3;
-	else
-		position = 2;
+	float filtered_avg = 0;
+	int threshold = 30;
+	for(int i=0; i<READINGS; i++){
+		if(abs(avg - READINGSARR[i])<threshold){
+			filtered_avg += READINGSARR[i];
+		}
+	}
+	filtered_avg = filtered_avg/30;
 
+	if(filtered_avg < 60)
+		return 3;
+	else if(100 > filtered_avg && filtered_avg > 65)
+		return 1;
+	else
+		return 2;
+}
+
+void CenterGoal() {
+	servo[grabber] = 127;
+	turnUltra(0, 90);
+	moveDistance(-50, 20);
+	pause(0.3);
+	int position = detectPosition();
 	switch(position) {
 		case 1:
 			Position1();
+			break;
 		case 2:
 			Position2();
+			break;
+		case 3:
+			Position3();
+			break;
 		default:
 			return;
 	}

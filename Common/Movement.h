@@ -249,3 +249,16 @@ void parallel(int speed, int threshold, tSensors sensorA, tSensors sensorB){
 	}
 	turn(0);
 }
+void lateralCenter(int speed, int angle, int threshold, tSensors sensorA, tSensors sensorB){
+	turnUltra(0,angle);
+	turnUltra(1,angle);
+	pause(0.5);
+	int valA = SensorValue[sensorA];
+	int valB = SensorValue[sensorB];
+	while (abs(valA - valB) > threshold) {
+		valA = SensorValue[sensorA];
+ 		valB = SensorValue[sensorB];
+		move(speed * (valA>valB ? 1 : -1));
+	}
+	turn(0);
+}

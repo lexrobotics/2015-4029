@@ -94,6 +94,7 @@ task scoreAutoBall() {
 }
 */
 
+
 void Ramp(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
@@ -152,7 +153,7 @@ void Ramp(){
 
 #ifndef AUTO_COMPETITION
 task main() {
-	//Ramp();
-	translateDistance(100, 45, 24);
+	Ramp();
+	//translateDistance(100, 45, 24);
 }
 #endif
