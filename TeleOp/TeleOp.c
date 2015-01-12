@@ -1,4 +1,6 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
+#pragma config(Sensor, S3,     ultra1,         sensorSONAR)
+#pragma config(Sensor, S4,     ultra0,         sensorSONAR)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft,  tmotorTetrix, PIDControl)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft,   tmotorTetrix, PIDControl)
@@ -78,11 +80,11 @@ task main(){
 
     //DRIVER 1 (DOES PRETTY MUCH EVERYTHING)
     //LB on joy1 raises tube grabber.
-    if (joystick.joy1Btn(5)) servo[utube] = 192; // random numbers
+    if (joy1Btn(5)) servo[utube] = 192; // random numbers
     //LT on joy1 lowers tube grabber.
-    if (joystick.joy1Btn(7)) servo[utube] = 150; // more random numbers
+    if (joy1Btn(7)) servo[utube] = 150; // more random numbers
     //RB on joy1 toggles harvester.
-    if (joystick.joy1Btn(6)){
+    if (joy1Btn(6)){
     	if (harvesting){
     		harvesting = false;
     		motor[harvester] = 0;
@@ -95,7 +97,7 @@ task main(){
     	}
     }
     //RT on joy1 reverses harvester, regardless of toggle position.
-		if (joystick.joy1Btn(8))
+		if (joy1Btn(8))
 			motor[harvester] = -70;
 		else{
 			if (harvesting)
@@ -106,7 +108,7 @@ task main(){
 
 		//DRIVER 2 (DOES PRETTY MUCH NOTHING)
 		//RB on joy2 toggles harvester.
-    if (joystick.joy2Btn(6)){
+    if (joy2Btn(6)){
     	if (belting){
     		belting = false;
     		motor[belt] = 0;
@@ -119,7 +121,7 @@ task main(){
     	}
     }
     //RT on joy1 reverses, regardless of toggle position.
-		if (joystick.joy1Btn(8))
+		if (joy1Btn(8))
 			motor[belt] = -70;
 		else{
 			if (belting)
@@ -128,7 +130,7 @@ task main(){
 				motor[belt] = 0;
 		}
     //Raises lift if it's not all the way up.
-    if (joystick.joy2Btn(9) && joystick.joy2Btn(10)){
+    if (joy2Btn(9) && joy2Btn(10)){
     	servo[doueven] = 180;
     	servo[liftbruh] = 180; // TODO: empirically determine this value, unless there's a better way
 		}
