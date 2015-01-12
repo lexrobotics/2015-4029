@@ -19,14 +19,87 @@ task main() {
 	resetEncoders();
 
 	fullStop();
-	for(int i = 30; i < 120; i+=2) {
+	while(true) {
+		nxtDisplayCenteredTextLine(2, "%d", SensorValue[ultra0]);
+		wait1Msec(5);
+	}
+	/*int angle = 0;
+	int direction = 1;
+	bool sawit = false;
+	turnUltra(0, 0);
+	wait1Msec(1000);
+	for(int angle = 0; angle < 125; angle++) {
+		writeDebugStreamLine("%d", SensorValue[ultra0]);
+		if(!sawit && SensorValue[ultra0] < 100) {
+			writeDebugStreamLine("Detected at %d", angle);
+			sawit = true;
+		}
+		if(sawit && SensorValue[ultra0] > 100) {
+			writeDebugStreamLine("Lost detection at %d", angle);
+			sawit = false;
+		}
+		turnUltra(0, angle);
+		wait1Msec(100);
+	}*/
+}
+
+
+
+/*int forwards = 10;
+	int right = 0;
+	int angleSum = 0;
+	int angle = 90;
+	int aboveCt = 0;
+	int belowCt = 0;
+	const int threshold = 100;
+	int direction = 1;
+	bool onTube = false;
+	int avg = -1;
+	int distance = -1;
+	int closestDistance = 255;
+	int previousTubeEdge;
+	float c;
+	float tubeCenter;
+	while(true) {
+		//writeDebugStreamLine("%f", c);
+		writeDebugStreamLine("%d", SensorValue[ultra0]);
+		if(angle < 0 || angle > 125) {
+			direction *= -1;
+		}
+
+		if(SensorValue[ultra0] < threshold)
+			distance = SensorValue[ultra0];
+
+		if(SensorValue[ultra0] < threshold) {
+			aboveCt = 0;
+			belowCt++;
+		}
+		if(SensorValue[ultra0] > threshold) {
+			belowCt = 0;
+			aboveCt++;
+		}
+		if(!onTube && belowCt > 0) {
+			onTube = true;
+		}
+		if(onTube && aboveCt > 0) {
+			onTube = false;
+
+			tubeCenter = (angle + previousTubeEdge)/2.0;
+			c = distance * cos(PI - tubeCenter * PI/180.0);
+			previousTubeEdge = angle;
+
+			direction *= -1;
+		}
+
+		angle += direction;
+		turnUltra(0, angle);
+		wait1Msec(25);
+	}
+	for(int i = 30; i < 120; i++) {
 		turnUltra(0, i);
 		wait1Msec(100);
 		writeDebugStreamLine("(%d, %d)", i, SensorValue[ultra0]);
 	}
 	turnUltra(0, 0);
 	turnUltra(1, 0);
-	wait10Msec(10);
-	parallel(20, 0, 0, 1);
-
-}
+	wait10Msec(10);*/
