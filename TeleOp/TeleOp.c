@@ -88,12 +88,12 @@ task main(){
     	if (harvesting){
     		harvesting = false;
     		motor[harvester] = 0;
-    		wait1Msec(200);
+    		while (joy1Btn(6));
     	}
     	else{
     		harvesting = true;
     		motor[harvester] = 70;
-    		wait1Msec(200);
+    		while (joy1Btn(6));
     	}
     }
     //RT on joy1 reverses harvester, regardless of toggle position.
@@ -112,12 +112,12 @@ task main(){
     	if (belting){
     		belting = false;
     		motor[belt] = 0;
-    		wait1Msec(200);
+    		while (joy2Btn(6));
     	}
     	else{
     		belting = true;
     		motor[belt] = 70;
-    		wait1Msec(200);
+    		while (joy2Btn(6));
     	}
     }
     //RT on joy1 reverses, regardless of toggle position.
