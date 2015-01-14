@@ -5,7 +5,7 @@
 #pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     harvester,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     coveyor,       tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     conveyor,       tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S2_C1_1,     motorBackRight, tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Servo,  srvo_S2_C2_1,    grabber,              tServoContinuousRotation)

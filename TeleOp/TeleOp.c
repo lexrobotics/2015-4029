@@ -1,22 +1,24 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  none,     none)
 #pragma config(Hubs,  S2, HTMotor,  HTServo,  HTServo,  none)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S2,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S3,     ultra1,         sensorSONAR)
 #pragma config(Sensor, S4,     ultra0,         sensorSONAR)
-#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     harvester,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     coveyor,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S2_C1_1,     motorBackRight, tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Servo,  srvo_S2_C2_1,    grabber,              tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C2_2,    utlraServo0,          tServoStandard)
+#pragma config(Motor,  mtr_S1_C2_2,     conveyor,      tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S2_C1_1,     motorBackRight, tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, PIDControl, encoder)
+#pragma config(Servo,  srvo_S2_C2_1,    lift1,                tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C2_2,    lift2,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C2_3,    ultraServo1,          tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoNone)
-#pragma config(Servo,  srvo_S2_C3_1,    lift1,                tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C3_2,    lift2,                tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C3_3,    servo9,               tServoNone)
+#pragma config(Servo,  srvo_S2_C3_1,    servo7,               tServoNone)
+#pragma config(Servo,  srvo_S2_C3_2,    servo8,               tServoNone)
+#pragma config(Servo,  srvo_S2_C3_3,    test,                 BadType)
 #pragma config(Servo,  srvo_S2_C3_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_5,    servo11,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_6,    servo12,              tServoNone)
@@ -46,6 +48,9 @@ MOUNTING THE WHEELS:
 */
 
 #include "JoystickDriver.c"
+#include "../common/Movement.h"
+
+const int WINCHSTOP = 12;
 
 float normalize10(float x){
 	if(abs(x) < 10) return 0;
@@ -72,163 +77,69 @@ Rotation matrix, which changes the requested vFwd and vSide so they are correcte
 Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 */
 
+void init() {
+	servo[lift1] = WINCHSTOP;
+	servo[lift2] = WINCHSTOP;
+	//servo[lift1] = -100000;
+	//servo[lift2] = 100000;
+	//pause(1);
+	//servo[lift1] = -26;
+	//servo[lift2] = 255+26;
+}
 
+task arm() {
+  getJoystickSettings(joystick);
+	while(true) {
+		if(joy1Btn(5)) {
+			motor[conveyor] = 100;
+		}
+		else if(Joy1Btn(7)) {
+			motor[conveyor] = -100;
+		}
+		else {
+			motor[conveyor] = 0;
+		}
+		if(joy1Btn(6)) {
+			motor[harvester] = 100;
+		}
+		else if(joy1Btn(8)) {
+			motor[harvester] = -100;
+		}
+		else {
+			motor[harvester] = 0;
+		}
+		if(joy2Btn(5)) {
+			servo[lift1] = 0;
+			servo[lift2] = 0;
+		}
+		else {
+			servo[lift1] = WINCHSTOP;
+			servo[lift2] = WINCHSTOP;
+		}
+	}
+}
 
 task main(){
-  //int vFwd, vSide, vRot; //Forward, Side, and Rotational velocities
-
   int x1, y1, x2, y2;
   bool harvesting = false;
   bool belting = false;
+  init();
+	waitForStart();
+	StartTask(arm);
+  while(true){
+  	getJoystickSettings(joystick);
 
-  while(1){
-    getJoystickSettings(joystick);
-
-    //DRIVER 1 (DOES PRETTY MUCH EVERYTHING)
-    //LB on joy1 raises tube grabber.
-    if (joy1Btn(5)) servo[utube] = 192; // random numbers
-    //LT on joy1 lowers tube grabber.
-    if (joy1Btn(7)) servo[utube] = 150; // more random numbers
-    //RB on joy1 toggles harvester.
-    if (joy1Btn(6)){
-    	if (harvesting){
-    		harvesting = false;
-    		motor[harvester] = 0;
-    		while (joy1Btn(6));
-    	}
-    	else{
-    		harvesting = true;
-    		motor[harvester] = 70;
-    		while (joy1Btn(6));
-    	}
-    }
-    //RT on joy1 reverses harvester, regardless of toggle position.
-		if (joy1Btn(8))
-			motor[harvester] = -70;
-		else{
-			if (harvesting)
-				motor[harvester] = 70;
-			else
-				motor[harvester] = 0;
-		}
-
-		//DRIVER 2 (DOES PRETTY MUCH NOTHING)
-		//RB on joy2 toggles harvester.
-    if (joy2Btn(6)){
-    	if (belting){
-    		belting = false;
-    		motor[belt] = 0;
-    		while (joy2Btn(6));
-    	}
-    	else{
-    		belting = true;
-    		motor[belt] = 70;
-    		while (joy2Btn(6));
-    	}
-    }
-    //RT on joy1 reverses, regardless of toggle position.
-		if (joy1Btn(8))
-			motor[belt] = -70;
-		else{
-			if (belting)
-				motor[belt] = 70;
-			else
-				motor[belt] = 0;
-		}
-    //Raises lift if it's not all the way up.
-    if (joy2Btn(9) && joy2Btn(10)){
-    	servo[doueven] = 180;
-    	servo[liftbruh] = 180; // TODO: empirically determine this value, unless there's a better way
-		}
-
-
-
-    /*
-    //ORIGINAL FWD/SIDE/ROT JOYSTICKING SYSTEM
-
-	  //(Each joystick value is between -128 and 128.)
-	  //Normalize to make sure drift doesn't happen when joystick values are slightly off.
-		vFwd = normalize10(joystick.joy1_y1); //Moves forward/backward based on the left-side joystick forward/backward direction.
-		vSide = normalize10(joystick.joy1_x1); //Moves side-to-side based on the left-side joystick sideways direction.
-		vRot = normalize10(joystick.joy1_x2); //Rotates based on the right-side joystick sideways direction.
-
-	  //The magic Mecanum additions and subtractions, derived via lots of diagrams and logic.
-	  //Fwd is obvious - all the wheels have to go forward.
-	  //Side is because if you spin front wheels in opposite directions, they will move to the side,
-	  //and you must spin the back wheels in the opposite opposite directions to move to the same side.
-	  //Rotation is similar - to move the front wheels and back wheels to different sides, move them in the same opposite directions.
-	  //It's probably quite difficult to quantify with encoders etc. exactly what's going on with rotation, so gyros are good.
-	  //Come to think of it quantifying diagonal translation may also be awkward.
-	  motor[motorFrontLeft] = normalize10(JoyToWheel * (vFwd + vSide - vRot));
-	  motor[motorFrontRight] = normalize10(JoyToWheel * (vFwd - vSide + vRot));
-	  motor[motorBackLeft] = normalize10(JoyToWheel * (vFwd - vSide - vRot));
-	  motor[motorBackRight] = normalize10(JoyToWheel * (vFwd + vSide + vRot));
-    */
-
-
-
-    //AUGMENTED-TANK JOYSTICKING SYSTEM
-
+  	//AUGMENTED-TANK JOYSTICKING SYSTEM
 	  x1 = normalize10(joystick.joy1_x1);
 	  x2 = normalize10(joystick.joy1_x2);
 	  y1 = normalize10(joystick.joy1_y1);
 	  y2 = normalize10(joystick.joy1_y2);
 
-	  //Find the maximum possible combination that we use in the formula, and normalize to make it 95 (less than 100, to be safe about it).
-	  //Because if it goes over 100, it'll truncate and it'll mess up alignment of motion.
-	  //Joystick values are from -128 to 128, and there are three that can add up together, so divide by 3 to normalize.
-	  //Motor values are from -100 to 100.
 	  float JoyToWheel = 95.0 / max(max(max(abs(y2 + x2),abs(y1 - x1)),max(abs(y2 - x1),abs(y2 + x2))), 10);
 
-		//The Normalizes are necessary to prevent motor jerking back and forth on small values.
-	  //Translation is achieved by moving both joysticks in the same direction.
-	  //Rotation is achieved by having any difference in the joysticks (e.g. typical tank-drive turning.)
-	  motor[motorFrontLeft] = normalize10(y2 + x2) * JoyToWheel;
-	  motor[motorFrontRight] = normalize10(y1 - x1) * JoyToWheel;
-	  motor[motorBackLeft] = normalize10(y2 - x1) * JoyToWheel;
-	  motor[motorBackRight] = normalize10(y1 + x2) * JoyToWheel;
-		//This system does not lend itself to rotation-while-translating, since it's hard to track x and y translational components.
-
-
-
-	  /*
-		//ROTATION-CAPABLE AUGMENTED-TANK-DRIVE
-
-	  x1 = normalize10(joystick.joy1_x1);
-	  y1 = normalize10(joystick.joy1_y1);
-	  x2 = normalize10(joystick.joy1_x2);
-	  y2 = normalize10(joystick.joy1_y2);
-
-	  //Takes the averages of the x and y values for the joysticks, and makes them the x/y translations, so it acts just like augmented-tank original.
-	  float translationX = (x1 + x2)/2.0;
-	  float translationY = (y1 + y2)/2.0;
-	  //Determines the difference of the vectors to determine the rotation.
-	  float rotation = (y2 - y1)/2.0;
-	  float theta = 0;
-
-	  rotate(translationX, translationY, theta);
-	  float JoyToWheel = 95.0 / (abs(translationY) + abs(translationX) + abs(rotation));
-
-	  motor[motorFrontLeft] = normalize10(JoyToWheel * (translationY + translationX - rotation));
-	  motor[motorFrontRight] = normalize10(JoyToWheel * (translationY - translationX + rotation));
-	  motor[motorBackLeft] = normalize10(JoyToWheel * (translationY - translationX - rotation));
-	  motor[motorBackRight] = normalize10(JoyToWheel * (translationY + translationX + rotation));
-		*/
-
-
-
-		/*
-		Encoder speculations:
-		For encoders, reverse-solving the original motor formulae:
-		(I seriously doubt this will do anything correctly, especially on rotation.)
-		*/
-		//double deltaFwd = k * (deltaEncFL + deltaEncFR)/2.0;
-		//double deltaSide = k * (deltaEncFL - deltaEncBL)/2.0;
-		//double deltaRot = k * (deltaEncFR - deltaEncBL)/2.0;
-		/*
-		(BR should equal FL + FR - BL, so BR is redundant for the formula)
-		(After doing the deltas, add them to totals so we can track fwd, side, and rot motion.
-		Or actually just adding the vFwd, vSide, and vRot is usually easier and more accurate for that, but encoders don't drift.)
-		*/
+	  motor[motorFrontLeft] = normalize10(y2 - x2) * JoyToWheel;
+	  motor[motorFrontRight] = normalize10(y1 + x1) * JoyToWheel;
+	  motor[motorBackLeft] = normalize10(y2 + x1) * JoyToWheel;
+	  motor[motorBackRight] = normalize10(y1 - x2) * JoyToWheel;
   }
 }
