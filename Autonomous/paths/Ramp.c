@@ -1,4 +1,5 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     backUltra,      sensorSONAR)
 #pragma config(Sensor, S3,     frontUltra,     sensorSONAR)
 #pragma config(Sensor, S4,     touch,          sensorTouch)
@@ -6,8 +7,8 @@
 #pragma config(Motor,  mtr_S1_C1_2,     leftMotors,    tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     rightMotors,   tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     spinner,       tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, openLoop, encoder)
-#pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C4_1,     liftStageOne,  tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S1_C4_2,     liftStageTwo,  tmotorTetrix, PIDControl, encoder)
 #pragma config(Servo,  srvo_S1_C3_1,    rearUltraServo,       tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    bucketTilt,           tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    bucketGate,           tServoStandard)
@@ -28,12 +29,12 @@ void waitForUltra();
 
 void grabTube(){
 	servo[grabber] = 255;
-	pause(1.3);
+	pause(0.85);
 	servo[grabber] = 127;
 }
 task releaseTube(){
 	servo[grabber] = 0;
-	pause(0.9);
+	pause(0.65);
 	servo[grabber] = 127;
 }
 void tillBack(int speed,bool sees){
@@ -114,7 +115,7 @@ void parallel(int speed){
 
 task turnUltraTask() {
 	ultraReady = false;
-	int ZERO = 189;
+	int ZERO = 154;
 	int scaled = ultraAngle * 255.0/180.0;
 
 	servo[rearUltraServo] = ZERO - scaled;
@@ -240,7 +241,7 @@ void Ramp(){
 	StartTask(scoreAutoBall);
 	grabTube();
 	// bring tube to goal
-	//turnDistancePID(40);
+
 	turnDistance(100, 20);
 	moveDistance(100, 10);
 	turnDistance(100, 17);
@@ -251,31 +252,26 @@ void Ramp(){
 	while(SensorValue[backUltra] > 65) {
 		move(-100);
 	}
+	move(0);
 	startTask(releaseTube);
 	//parallel and get in front of ramp
 	turnUltra(0);
-	turnDistance(100, 230);
+	pause(0.5);
+	turnDistance(100, 210);
 
-	//moveDistance(100, 5);
-	//tillFront(50,true);
-	//pause(0.5);
-	//parallel(50);
-	//pause(0.5);
-
-	//tillBack(-30,false, 60);
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
 	moveDistance(-100, 50);
-	turnDistance(100, 40);
-	turnUltra(45);
+	//turnDistance(100, 35);
+	turnUltra(35);
 	//get within range
 	waitForUltra();
 	tillBack(-70,true,40);
+	tillBack(70,false,35);
 	turnUltra(0);
 	waitForUltra();
 	pause(0.2);
-	parallel(40);
-
+	parallel(30);
 	turnUltra(95);
 	waitForUltra();
 	tillBack(-50,true, 52);
@@ -284,57 +280,32 @@ void Ramp(){
 	//swivel and find tube
 	sweep(17);
 
-	//Use ultrasonics to calculate angle needed to reach second tube
-	/*float d1 = SensorValue[backUltra] + 26 - 30.0;
-	float d2 = SensorValue[frontUltra] + 17.8 - 20.0;
-	int distFromTube = sqrt(pow(d1, 2) + pow(d2, 2));
-	float angle = (180/PI) * atan(d2/d1);
-
-	turnDistancePID(angle);
-	*/
-	/*move(0);
-	while(true) {
-		nxtDisplayCenteredTextLine(1, "f: %d, b: %d", SensorValue[frontUltra], SensorValue[backUltra]);
-		nxtDisplayCenteredTextLine(2, "f: %d, b: %d", d1, d2);
-		nxtDisplayCenteredTextLine(3, "a: %f", angle);
-	}*/
 	//Turn ultrasonic and wait to see tube in range
 	pause(0.5);
 	turnUltra(135);
-	move(-40);
+	move(-30);
 	while(SensorValue[backUltra]>30){};
 	move(0);
-	moveDistance(-50, 5);
+	moveDistance(-30, 8);
 	turnUltra(0);
 	grabTube();
-	/*waitForUltra();
-	float f = SensorValue[frontUltra];
-	float b = SensorValue[backUltra];
-	float angle = asin((f-b)/24.0) * (180.0/PI);
-	float diff = angle - 17.0;
-	if(diff < 0)
-		turnDistance(-100, -1*diff);
-	else if(diff > 0)
-		turnDistance(100, diff);*/
-	turnDistance(100, 5);
+	pause(0.2);
+
+	const float E = 0.1;
+	while(true) {
+		float f = SensorValue[frontUltra];
+		float b = SensorValue[backUltra];
+		if(b/f > (24.0/30.0) + E)
+			turn(50);
+		else if(b/f < (24.0/30.0) - E)
+			turn(-50);
+		else {
+			turn(0);
+			break;
+		}
+	}
 	moveDistance(100, 100);
-	//return to parking goal
-	/*turnUltra(0);
-	turnDistance(50, 15);
-	moveDistance(50, 12);
-	pause(0.2);
-	parallel(50);
-	pause(0.2);
-	turnUltra(90);
-	waitForUltra();
-	int x = SensorValue[backUltra];
-	int y = SensorValue[frontUltra];
-	float angle = atan((170.0 - y)/(365.0 - x)) * (180 / PI);
-	turnDistance(100, angle);
-	moveDistance(100, 36); */
-	/*moveDistance(50, 12);
-	turnDistance(50, 35);
-	moveDistance(100, 70);*/
+
 	turnDistance(100, 210);
 	turnUltra(85);
 	waitForUltra();
@@ -351,7 +322,14 @@ task main() {
 	pause(0.5);
 	servo[bucketTilt] = 60;
 	servo[grabber] = 127;
+	//while(true){
+	//	turnDistance(100, 180);
+	//	pause(0.3);
+	//}
+
+	//Confirmed working at 13.7v
 	Ramp();
 	//turnUltra(0);
+	//while(true){}
 }
 #endif
