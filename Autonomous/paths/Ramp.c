@@ -29,7 +29,13 @@ void waitForUltra();
 
 void grabTube(){
 	servo[grabber] = 255;
-	pause(0.85);
+	pause(1);
+	servo[grabber] = 127;
+}
+
+task grabTubeTask(){
+	servo[grabber] = 255;
+	pause(1);
 	servo[grabber] = 127;
 }
 task releaseTube(){
@@ -200,10 +206,10 @@ task scoreAutoBall() {
 	motor[liftStageOne] = 0;
 	motor[liftStageTwo] = 0;
 	nxtDisplayCenteredTextLine(2, "there");
-	servo[bucketTilt] = 245;
+	servo[bucketTilt] = 240;
 	pause(1);
 	servo[bucketGate] = 105;
-	pause(0.8);
+	pause(1.2);
 	servo[bucketGate] = 10;
 	pause(0.5);
 	servo[bucketTilt] = 80;
@@ -237,9 +243,12 @@ void Ramp(){
 	// Navigate down the ramp and grab tube
 	pause(0.5);
 	startTask(init);
-	moveDistancePID(-97, 0.02, 0);
+	moveDistancePID(-92, 0.02, 0);
 	StartTask(scoreAutoBall);
-	grabTube();
+	move(-15);
+	StartTask(grabTubeTask);
+	pause(0.5);
+	move(0):
 	// bring tube to goal
 
 	turnDistance(100, 20);
@@ -261,7 +270,9 @@ void Ramp(){
 
 	//angle towards the wall and turn the ultra perpendicular to the wall
 	//changed for speed
-	moveDistance(-100, 50);
+	moveDistance(-100, 30);
+	turnDistance(100,30);
+
 	//turnDistance(100, 35);
 	turnUltra(35);
 	//get within range
@@ -270,9 +281,9 @@ void Ramp(){
 	tillBack(70,false,35);
 	turnUltra(0);
 	waitForUltra();
-	pause(0.2);
-	parallel(30);
-	turnUltra(95);
+	pause(0.3);
+	parallel(40);
+	turnUltra(90);
 	waitForUltra();
 	tillBack(-50,true, 52);
 	move(0);
@@ -286,18 +297,19 @@ void Ramp(){
 	move(-30);
 	while(SensorValue[backUltra]>30){};
 	move(0);
-	moveDistance(-30, 8);
+	moveDistance(-25, 8);
 	turnUltra(0);
 	grabTube();
 	pause(0.2);
 
 	const float E = 0.1;
+	const float parAngle = 24.0/30.0;
 	while(true) {
 		float f = SensorValue[frontUltra];
 		float b = SensorValue[backUltra];
-		if(b/f > (24.0/30.0) + E)
+		if(b/f > parAngle + E)
 			turn(50);
-		else if(b/f < (24.0/30.0) - E)
+		else if(b/f < parAngle - E)
 			turn(-50);
 		else {
 			turn(0);
@@ -306,12 +318,14 @@ void Ramp(){
 	}
 	moveDistance(100, 100);
 
-	turnDistance(100, 210);
+	turnDistance(-100, 215);
+	/*
 	turnUltra(85);
 	waitForUltra();
 	while(SensorValue[backUltra] > 65) {
 		move(-100);
 	}
+	*/
 	move(0);
 	StartTask(releaseTube);
 }
