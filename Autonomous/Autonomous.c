@@ -36,7 +36,10 @@ int selectString(Options s, const string label, int prev);
 
 task main() {
 	nNxtExitClicks = 3;
-
+	servo[bucketGate] = 5;
+	pause(0.5);
+	servo[bucketTilt] = 105;
+	servo[grabber] = 127;
 	string teleopFileName = "TeleOp.c";
 	const int NUM_PATHS = 2;
 	Options PATHS;

@@ -283,11 +283,15 @@ void Ramp(){
 	waitForUltra();
 	pause(0.3);
 	parallel(40);
-	turnUltra(90);
+	pause(0.2);
+	turnUltra(95);
 	waitForUltra();
 	tillBack(-50,true, 52);
 	move(0);
+	turnDistance(-40,5);
 	pause(0.3);
+	turnUltra(90);
+	waitForUltra();
 	//swivel and find tube
 	sweep(17);
 
@@ -336,10 +340,7 @@ task main() {
 	pause(0.5);
 	servo[bucketTilt] = 60;
 	servo[grabber] = 127;
-	//while(true){
-	//	turnDistance(100, 180);
-	//	pause(0.3);
-	//}
+
 
 	//Confirmed working at 13.7v
 	Ramp();
