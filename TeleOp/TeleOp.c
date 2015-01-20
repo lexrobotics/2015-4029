@@ -12,7 +12,7 @@
 #pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, PIDControl, encoder)
 #pragma config(Servo,  srvo_S2_C2_1,    lift1,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C2_2,    lift2,                tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C2_3,    ultraServo1,          tServoStandard)
+#pragma config(Servo,  srvo_S2_C2_3,    grabber,              tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C2_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoNone)
@@ -90,20 +90,29 @@ void init() {
 task arm() {
   getJoystickSettings(joystick);
 	while(true) {
-		if(joy1Btn(5)) {
+		if(joy2Btn(5)) {
 			motor[conveyor] = 100;
 		}
-		else if(Joy1Btn(7)) {
+		else if(Joy2Btn(7)) {
 			motor[conveyor] = -100;
 		}
 		else {
 			motor[conveyor] = 0;
 		}
+		if(joy1Btn(5)) {
+			servo[grabber] = 255;
+		}
+		else if(joy1Btn(7)) {
+			servo[grabber] = 0;
+		}
+		else {
+			servo[grabber] = 127;
+		}
 		if(joy1Btn(6)) {
-			motor[harvester] = 100;
+			motor[harvester] = 75;
 		}
 		else if(joy1Btn(8)) {
-			motor[harvester] = -100;
+			motor[harvester] = -75;
 		}
 		else {
 			motor[harvester] = 0;
