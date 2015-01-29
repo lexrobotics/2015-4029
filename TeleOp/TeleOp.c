@@ -18,7 +18,7 @@
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_1,    servo7,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_2,    servo8,               tServoNone)
-#pragma config(Servo,  srvo_S2_C3_3,    test,                 BadType)
+#pragma config(Servo,  srvo_S2_C3_3,    servo9,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_5,    servo11,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_6,    servo12,              tServoNone)
