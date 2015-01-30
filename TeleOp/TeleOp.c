@@ -4,21 +4,21 @@
 #pragma config(Sensor, S2,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S3,     ultra1,         sensorSONAR)
 #pragma config(Sensor, S4,     ultra0,         sensorSONAR)
-#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, openLoop, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     harvester,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_2,     conveyor,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S2_C1_1,     motorBackRight, tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S2_C1_1,     motorBackRight, tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S2_C1_2,     motorFrontRight, tmotorTetrix, openLoop, encoder)
 #pragma config(Servo,  srvo_S2_C2_1,    lift1,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C2_2,    lift2,                tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C2_3,    ultraServo1,          tServoStandard)
+#pragma config(Servo,  srvo_S2_C2_3,    grabber,              tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C2_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_1,    servo7,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_2,    servo8,               tServoNone)
-#pragma config(Servo,  srvo_S2_C3_3,    test,                 BadType)
+#pragma config(Servo,  srvo_S2_C3_3,    servo9,               tServoNone)
 #pragma config(Servo,  srvo_S2_C3_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_5,    servo11,              tServoNone)
 #pragma config(Servo,  srvo_S2_C3_6,    servo12,              tServoNone)
@@ -50,7 +50,7 @@ MOUNTING THE WHEELS:
 #include "JoystickDriver.c"
 #include "../common/Movement.h"
 
-const int WINCHSTOP = 12;
+const int WINCHSTOP = 11;
 
 float normalize10(float x){
 	if(abs(x) < 10) return 0;
@@ -80,24 +80,28 @@ Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 void init() {
 	servo[lift1] = WINCHSTOP;
 	servo[lift2] = WINCHSTOP;
-	//servo[lift1] = -100000;
-	//servo[lift2] = 100000;
-	//pause(1);
-	//servo[lift1] = -26;
-	//servo[lift2] = 255+26;
 }
 
 task arm() {
   getJoystickSettings(joystick);
 	while(true) {
-		if(joy1Btn(5)) {
+		if(joy2Btn(6)) {
 			motor[conveyor] = 100;
 		}
-		else if(Joy1Btn(7)) {
+		else if(Joy2Btn(8)) {
 			motor[conveyor] = -100;
 		}
 		else {
 			motor[conveyor] = 0;
+		}
+		if(joy1Btn(5)){
+			servo[grabber] = 255;
+		}
+		else if(joy1Btn(7)){
+			servo[grabber] = 0;
+		}
+		else {
+			servo[grabber] = 127;
 		}
 		if(joy1Btn(6)) {
 			motor[harvester] = 100;
