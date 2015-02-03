@@ -81,20 +81,15 @@ Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 void init() {
 	servo[lift1] = WINCHSTOP;
 	servo[lift2] = WINCHSTOP;
-	//servo[lift1] = -100000;
-	//servo[lift2] = 100000;
-	//pause(1);
-	//servo[lift1] = -26;
-	//servo[lift2] = 255+26;
 }
 
 task arm() {
   getJoystickSettings(joystick);
 	while(true) {
-		if(joy2Btn(5)) {
+		if(joy2Btn(6)) {
 			motor[conveyor] = 100;
 		}
-		else if(Joy2Btn(7)) {
+		else if(Joy2Btn(8)) {
 			motor[conveyor] = -100;
 		}
 		else {
