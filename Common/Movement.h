@@ -162,8 +162,8 @@ void pause(float seconds) {
 }
 
 void translateRT(int speed, int angle) {
-	if(speed > 60)
-		speed = 60;
+	//if(speed > 60)
+	//	speed = 60;
 	float angleRad = (angle + 45) * PI/180;
 	float pow1 = speed * sin(angleRad);
 	float pow2 = speed * cos(angleRad);
@@ -206,12 +206,12 @@ void turnUltra(int servo_index, int angle) {
 	int ZERO;
 	switch(servo_index) {
 		case 0:
-			ZERO = 192;
-			servo[servo1] = ZERO - scaled;
+			ZERO = 140;
+			servo[frontTurret] = ZERO - scaled;
 			break;
 		case 1:
-			ZERO = 140;
-			servo[servo2] =  ZERO + scaled ;
+			ZERO = 43;
+			servo[rearTurret] =  ZERO + scaled ;
 			break;
 	}
 }
@@ -238,17 +238,44 @@ void changeDetection(int speed, int angle, int jumpThreshold, tSensors sonar) {
 
 	translateRT(0, 0);
 }
-
+void findWall(){
+	while(SensorValue[frontUltra] == 255 && SensorValue[rearUltra] == 255){
+		for(int i = 0; i<90; i++) {
+			turnUltra(0, i);
+			turnUltra(1, i);
+			pause(0.05);
+			if(SensorValue[frontUltra] != 255) {
+				turnDistance(50, i);
+				break;
+			}
+			if(SensorValue[rearUltra] != 255) {
+				turnDistance(-50, i);
+				break;
+			}
+		}
+	}
+	turnUltra(0, 0);
+	turnUltra(1, 0);
+	pause(0.5);
+}
 void parallel(int speed, int threshold, tSensors sensorA, tSensors sensorB){
+	if(sensorValue[sensorA] == 255 && sensorValue[sensorB]){ findWall(); }
 	int valA = SensorValue[sensorA];
-	int valB = SensorValue[sensorB];
-	while (abs(valA - valB) > threshold) {
+	int valB = SensorValue[sensorB] -2;
+	while (abs(valA - valB) >= threshold) {
+		pause(0.02);
 		valA = SensorValue[sensorA];
- 		valB = SensorValue[sensorB];
+ 		valB = SensorValue[sensorB] -2;
+ 		//turn((valA - valB) * 0.20 * speed);
 		turn(speed * (valA>valB ? 1 : -1));
 	}
 	turn(0);
 }
+
+void filteredParallel(int speed, int threshold, tSensors sensorA, tSensors sensorB) {
+
+}
+
 void lateralCenter(int speed, int angle, int threshold, tSensors sensorA, tSensors sensorB){
 	turnUltra(0,angle);
 	turnUltra(1,angle);

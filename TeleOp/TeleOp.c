@@ -1,9 +1,7 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  none)
 #pragma config(Hubs,  S2, HTServo,  HTServo,  none,     none)
-#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
-#pragma config(Sensor, S2,     ,               sensorI2CMuxController)
-#pragma config(Sensor, S3,     ultra1,         sensorSONAR)
-#pragma config(Sensor, S4,     ultra0,         sensorSONAR)
+#pragma config(Sensor, S3,     rearUltra,      sensorSONAR)
+#pragma config(Sensor, S4,     frontUltra,     sensorSONAR)
 #pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorFrontRight, tmotorTetrix, PIDControl, encoder)
@@ -16,9 +14,9 @@
 #pragma config(Servo,  srvo_S2_C1_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
-#pragma config(Servo,  srvo_S2_C2_1,    grabber,              tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C2_2,    servo8,               tServoNone)
-#pragma config(Servo,  srvo_S2_C2_3,    servo9,               tServoNone)
+#pragma config(Servo,  srvo_S2_C2_1,    frontTurret,          tServoStandard)
+#pragma config(Servo,  srvo_S2_C2_2,    rearTurret,           tServoStandard)
+#pragma config(Servo,  srvo_S2_C2_3,    grabber,              tServoNone)
 #pragma config(Servo,  srvo_S2_C2_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoStandard)
@@ -113,7 +111,7 @@ task arm() {
 		else {
 			motor[harvester] = 0;
 		}
-		if(joy2Btn(6)) {
+		if(joy2Btn(5)) {
 			servo[lift1] = 0;
 			servo[lift2] = 0;
 		}
