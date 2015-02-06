@@ -41,7 +41,7 @@ void grabTube(){
 }
 task releaseTube(){
 	servo[grabber] = 0;
-	pause(0.9);
+	pause(1.1);
 	servo[grabber] = 127;
 }
 
@@ -114,7 +114,7 @@ void Ramp(){
 	//moveDistancePID(-83, 0.02, 0);
 	moveDistance(-50, 65);
 	pause(0.5);
-	tillSense(100, 90, true, 65, frontUltra);
+	tillSense(200, 90, true, 70, frontUltra);
 	pause(0.1);
 	parallel(25, 2, rearUltra, frontUltra);
 	pause(0.1);
@@ -124,75 +124,51 @@ void Ramp(){
 	turnUltra(1, 70);
 	tillSense(-100, 0, false, 65, rearUltra);
 	while(SensorValue[rearUltra] > 30) {
-		move(-20.0 * SensorValue[rearUltra]/100.0)
+		move((-20.0 * SensorValue[rearUltra]/100.0) - 10)
 	}
 	move(0);
 	grabTube();
-	turnUltra(0, 85);
+	turnUltra(1, 0);
 	pause(0.5);
-	tillSense(100, 0, false, 30, frontUltra);
-	while(true);
-	//StartTask(scoreAutoBall);
+	moveDistance(100,40);
+	pause(0.2);
+	tillSense(200, 90, true, 70, frontUltra);
+	pause(0.2);
+	parallel(25, 2, rearUltra, frontUltra);
+	pause(0.2);
+	turnUltra(0, 85);
+	pause(0.6);
+	tillSense(100, 0, false, 55, frontUltra);
+	pause(0.1);
+	turnDistance(-100, 180);
+	pause(0.1);
+	translateDistance(-200, 90, 24);
+	pause(0.1);
+	turnUltra(0, 0);
+	StartTask(releaseTube);
+	pause(0.2);
+	moveDistance(100, 5);
+	translateDistance(200, 90, 24);
+	turnDistance(100, 170);
+	moveDistance(-100,40);
+	pause(0.2);
+	parallel(25, 2, rearUltra, frontUltra);
+	pause(0.2);
+	tillSense(200, 90, true, 70, frontUltra);
+	turnUltra(1,90);
+	pause(0.3);
+	tillSense(-100, 0, false, 45, rearUltra);
+	turnDistance(100, 90);
+	moveDistance(-50, 24);
 	grabTube();
-	// bring tube to goal
-	turnDistance(50, 20);
-	moveDistance(50, 10);
-	turnDistance(50, 10);
-	moveDistance(50, 60);
-	turnDistance(50, 150);
-	resetEncoders();
-	turnUltra(0, 90);
-	while(SensorValue[frontUltra] > 65) {
-		move(-100);
-	}
-	//startTask(releaseTube);
-	////parallel and get in front of ramp
-
-	//turnDistance(50, 230);
-
-	////angle towards the wall and turn the ultra perpendicular to the wall
-	////changed for speed
-	//moveDistance(-50, 75);
-	//turnDistance(-50, 35);
-
-	//pause(0.2);
-	//turnUltra(0, 0);
-	//turnUltra(1, 0);
-	//pause(0.3);
-
-
-	//parallel(20, 0, frontUltra, rearUltra);
-	//pause(0.2);
-	//tillSense(-50, 90, false, 22, rearUltra);
-	//pause(0.5);
-
-	//turnUltra(0, 120);
-	//pause(0.75);
-	//tillSense(-50, 0, false, 20, frontUltra);
-
-	//grabTube();
-	//turnUltra(0,0);
-	//parallel(20, 0, frontUltra, rearUltra);
-	//pause(0.2);
-	//turnDistance(50, 15);
-	//moveDistance(50, 94);
-	//turnDistance(30, 150);
-
-	//resetEncoders();
-	//turnUltra(0, 90);
-	//while(SensorValue[frontUltra] > 65) {
-	//	move(-100);
-	//}
-	//StartTask(releaseTube);
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	//turnUltra(0,0);
-	//turnUltra(1,0);
+	//turnUltra(0,0)
 	//pause(0.8);
 	//parallel(20, 1, rearUltra, frontUltra);
-	Ramp();
+ 	Ramp();
 	//translateDistance(100,90,90);
 	//turnDistance(-20,90);
 	//turnDistance(50, 230);

@@ -221,7 +221,7 @@ Hybrid functions
 */
 void tillSense(int speed, int angle, bool see_now, int threshold, tSensors sonar){
 		translateRT(speed,angle);
-		while((SensorValue[sonar]<threshold)==see_now){
+		while((SensorValue[sonar]<threshold)==see_now || SensorValue[sonar] == 255){
 
 		}
 

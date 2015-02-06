@@ -93,10 +93,10 @@ task arm() {
 		else {
 			motor[conveyor] = 0;
 		}
-		if(joy1Btn(5)) {
+		if(joy1Btn(7)) {
 			servo[grabber] = 255;
 		}
-		else if(joy1Btn(7)) {
+		else if(joy1Btn(5)) {
 			servo[grabber] = 0;
 		}
 		else {
