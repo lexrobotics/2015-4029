@@ -52,7 +52,6 @@ MOUNTING THE WHEELS:
 #include "JoystickDriver.c"
 #include "../common/Movement.h"
 
-const int WINCHSTOP = 12;
 bool slow = false;
 int reverse = 1;
 
@@ -81,7 +80,7 @@ Rotation matrix, which changes the requested vFwd and vSide so they are correcte
 Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 */
 
-void init() {
+void initTeleOp() {
 	servo[lift1] = WINCHSTOP;
 	servo[lift2] = WINCHSTOP;
 }
@@ -150,8 +149,9 @@ task main(){
   float x1, y1, x2, y2;
   bool harvesting = false;
   bool belting = false;
-  init();
+
 	waitForStart();
+	initTeleOp();
 	StartTask(arm);
   while(true){
   	getJoystickSettings(joystick);

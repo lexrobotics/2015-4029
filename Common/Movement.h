@@ -17,6 +17,27 @@ void translateXY(int fwd, int right);
 void resetEncoders();
 int inchesToEncoder(int distance);
 int degreesToEncoder(int angle);
+void pause(float seconds);
+void turnUltra(int servo_index, int angle);
+
+const int WINCHSTOP = 12;
+
+void grabTube(){
+	servo[grabber] = 255;
+	pause(1);
+	servo[grabber] = 127;
+}
+task releaseTube(){
+	servo[grabber] = 0;
+	pause(1.3);
+	servo[grabber] = 127;
+}
+
+task init() {
+	startTask(releaseTube);
+	turnUltra(0, 0);
+	turnUltra(1, 0);
+}
 
 /*
 Motor business

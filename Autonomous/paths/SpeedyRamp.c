@@ -27,29 +27,6 @@
 #include "JoystickDriver.c"
 #include "drivers/hitechnic-irseeker-v2.h"
 #include "../../Common/Movement.h"
-#define robotLength 12.0
-
-bool ultraReady = true;
-int ultraAngle = 0;
-
-const int WINCHSTOP = 12;
-
-void grabTube(){
-	servo[grabber] = 255;
-	pause(0.9);
-	servo[grabber] = 127;
-}
-task releaseTube(){
-	servo[grabber] = 0;
-	pause(1.1);
-	servo[grabber] = 127;
-}
-
-task init() {
-	startTask(releaseTube);
-	turnUltra(0, 0);
-	turnUltra(1, 0);
-}
 
 void SpeedyRamp() {
 	StartTask(init);
@@ -74,6 +51,8 @@ void SpeedyRamp() {
 	StartTask(releaseTube);
 	pause(0.2);
 	moveDistance(100, 5);
+	servo[lift1] = WINCHSTOP;
+	servo[lift2] = WINCHSTOP;
 }
 
 #ifndef AUTO_COMPETITION
