@@ -36,12 +36,12 @@ const int WINCHSTOP = 12;
 
 void grabTube(){
 	servo[grabber] = 255;
-	pause(0.7);
+	pause(1);
 	servo[grabber] = 127;
 }
 task releaseTube(){
 	servo[grabber] = 0;
-	pause(1.1);
+	pause(1.3);
 	servo[grabber] = 127;
 }
 
@@ -115,13 +115,12 @@ void Ramp(){
 	moveDistance(-50, 65);
 	pause(0.5);
 	tillSense(200, 90, true, 70, frontUltra);
-	pause(0.1);
-	parallel(25, 2, rearUltra, frontUltra);
-	pause(0.1);
-	moveDistance(-20,10);
-	parallel(25, 1, rearUltra, frontUltra);
-	pause(0.1);
+	pause(0.2);
+	incrementalParallel(50, 0, rearUltra, frontUltra);
+	pause(0.2);
 	turnUltra(1, 70);
+	servo[lift1] = WINCHSTOP;
+	servo[lift2] = WINCHSTOP;
 	tillSense(-100, 0, false, 65, rearUltra);
 	while(SensorValue[rearUltra] > 30) {
 		move((-20.0 * SensorValue[rearUltra]/100.0) - 10)
@@ -134,7 +133,7 @@ void Ramp(){
 	pause(0.2);
 	tillSense(200, 90, true, 70, frontUltra);
 	pause(0.2);
-	parallel(25, 2, rearUltra, frontUltra);
+	incrementalParallel(50, 2, rearUltra, frontUltra);
 	pause(0.2);
 	turnUltra(0, 85);
 	pause(0.6);
@@ -152,22 +151,20 @@ void Ramp(){
 	turnDistance(100, 170);
 	moveDistance(-100,40);
 	pause(0.2);
-	parallel(25, 2, rearUltra, frontUltra);
+	incrementalParallel(50, 2, rearUltra, frontUltra);
 	pause(0.2);
 	tillSense(200, 90, true, 70, frontUltra);
 	turnUltra(1,90);
 	pause(0.3);
 	tillSense(-100, 0, false, 45, rearUltra);
 	turnDistance(100, 90);
-	moveDistance(-50, 24);
-	grabTube();
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	//turnUltra(0,0)
 	//pause(0.8);
-	//parallel(20, 1, rearUltra, frontUltra);
+
+//parallel(30, 1, rearUltra, frontUltra);
  	Ramp();
 	//translateDistance(100,90,90);
 	//turnDistance(-20,90);

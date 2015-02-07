@@ -1,13 +1,17 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  none)
-#pragma config(Hubs,  S2, HTServo,  HTServo,  none,     none)
+#pragma config(Hubs,  S2, HTServo,  HTServo,  HTMotor,  none)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S2,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S3,     rearUltra,      sensorSONAR)
 #pragma config(Sensor, S4,     frontUltra,     sensorSONAR)
-#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C2_1,     motorFrontRight, tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C2_2,     motorBackRight, tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_1,     motorFrontLeft, tmotorTetrix, openLoop, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C2_1,     motorFrontRight, tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C2_2,     motorBackRight, tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C3_1,     conveyor,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S2_C3_1,     motorj,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S2_C3_2,     tubeLift,      tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S2_C1_1,    lift1,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_2,    lift2,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_3,    servo3,               tServoNone)
@@ -50,6 +54,7 @@ MOUNTING THE WHEELS:
 
 const int WINCHSTOP = 12;
 bool slow = false;
+int reverse = 1;
 
 float normalize10(float x){
 	if(abs(x) < 10) return 0;
@@ -119,9 +124,23 @@ task arm() {
 			servo[lift1] = WINCHSTOP;
 			servo[lift2] = WINCHSTOP;
 		}
+		if(joy1Btn(4)) {
+			motor[tubeLift] = 100;
+		}
+		else if(joy1Btn(2)) {
+			motor[tubeLift] = -100;
+		}
+		else {
+			motor[tubeLift] = 0;
+		}
+		if(joy1Btn(9)) {
+			while(joy1Btn(9));
+			slow = !slow;
+			PlaySound(soundBeepBeep);
+		}
 		if(joy1Btn(10)) {
 			while(joy1Btn(10));
-			slow = !slow;
+			reverse = -1 * reverse;
 			PlaySound(soundBeepBeep);
 		}
 	}
@@ -138,10 +157,10 @@ task main(){
   	getJoystickSettings(joystick);
 
   	//AUGMENTED-TANK JOYSTICKING SYSTEM
-	  x1 = normalize10(joystick.joy1_x1);
-	  x2 = normalize10(joystick.joy1_x2);
-	  y1 = normalize10(joystick.joy1_y1);
-	  y2 = normalize10(joystick.joy1_y2);
+	  x1 = normalize10(reverse * joystick.joy1_x1);
+	  x2 = normalize10(reverse * joystick.joy1_x2);
+	  y1 = normalize10(reverse * joystick.joy1_y1);
+	  y2 = normalize10(reverse * joystick.joy1_y2);
 
 	  if(slow) {
 	  	x1 *= 0.2;
@@ -152,9 +171,17 @@ task main(){
 
 	  //float JoyToWheel = 95.0 / max(max(max(abs(y2 + x2),abs(y1 - x1)),max(abs(y2 - x1),abs(y2 + x2))), 10);
 		float joyToWheel = 1.0;
-	  motor[motorFrontLeft] = normalize10(y2 - x2) * JoyToWheel;
-	  motor[motorFrontRight] = normalize10(y1 + x1) * JoyToWheel;
-	  motor[motorBackLeft] = normalize10(y2 + x1) * JoyToWheel;
-	  motor[motorBackRight] = normalize10(y1 - x2) * JoyToWheel;
+		if(reverse == -1) {
+			motor[motorBackRight] =  normalize10(y2 - x2) * JoyToWheel;
+		  motor[motorBackLeft] = normalize10(y1 + x1) * JoyToWheel;
+		  motor[motorFrontRight] =  normalize10(y2 + x1) * JoyToWheel;
+		  motor[motorFrontLeft] = normalize10(y1 - x2) * JoyToWheel;
+		}
+		else {
+		  motor[motorFrontLeft] =  normalize10(y2 - x2) * JoyToWheel;
+		  motor[motorFrontRight] = normalize10(y1 + x1) * JoyToWheel;
+		  motor[motorBackLeft] =  normalize10(y2 + x1) * JoyToWheel;
+		  motor[motorBackRight] = normalize10(y1 - x2) * JoyToWheel;
+		}
   }
 }
