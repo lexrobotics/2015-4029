@@ -8,10 +8,10 @@
 #pragma config(Motor,  mtr_S1_C1_2,     motorBackLeft, tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorFrontRight, tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     motorBackRight, tmotorTetrix, openLoop, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C3_1,     conveyor,      tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C3_1,     motorH,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S2_C3_1,     motorj,        tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S2_C3_2,     tubeLift,      tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S2_C3_2,     conveyor,      tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S2_C1_1,    lift1,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_2,    lift2,                tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_3,    servo3,               tServoNone)
@@ -20,7 +20,7 @@
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_1,    frontTurret,          tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_2,    rearTurret,           tServoStandard)
-#pragma config(Servo,  srvo_S2_C2_3,    grabber,              tServoNone)
+#pragma config(Servo,  srvo_S2_C2_3,    servo9,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoStandard)
@@ -50,7 +50,7 @@ MOUNTING THE WHEELS:
 */
 
 #include "JoystickDriver.c"
-#include "../common/Movement.h"
+#include "../common/Util.h"
 
 bool slow = false;
 int reverse = 1;
@@ -80,6 +80,8 @@ Rotation matrix, which changes the requested vFwd and vSide so they are correcte
 Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 */
 
+const int WINCHSTOP = 12;
+
 void initTeleOp() {
 	servo[lift1] = WINCHSTOP;
 	servo[lift2] = WINCHSTOP;
@@ -97,15 +99,15 @@ task arm() {
 		else {
 			motor[conveyor] = 0;
 		}
-		if(joy1Btn(7)) {
-			servo[grabber] = 255;
-		}
-		else if(joy1Btn(5)) {
-			servo[grabber] = 0;
-		}
-		else {
-			servo[grabber] = 127;
-		}
+		//if(joy1Btn(7)) {
+		//	servo[grabber] = 255;
+		//}
+		//else if(joy1Btn(5)) {
+		//	servo[grabber] = 0;
+		//}
+		//else {
+		//	servo[grabber] = 127;
+		//}
 		if(joy1Btn(6)) {
 			motor[harvester] = 75;
 		}
@@ -123,15 +125,15 @@ task arm() {
 			servo[lift1] = WINCHSTOP;
 			servo[lift2] = WINCHSTOP;
 		}
-		if(joy1Btn(4)) {
-			motor[tubeLift] = 100;
-		}
-		else if(joy1Btn(2)) {
-			motor[tubeLift] = -100;
-		}
-		else {
-			motor[tubeLift] = 0;
-		}
+		//if(joy1Btn(4)) {
+		//	motor[tubeLift] = 100;
+		//}
+		//else if(joy1Btn(2)) {
+		//	motor[tubeLift] = -100;
+		//}
+		//else {
+		//	motor[tubeLift] = 0;
+		//}
 		if(joy1Btn(9)) {
 			while(joy1Btn(9));
 			slow = !slow;

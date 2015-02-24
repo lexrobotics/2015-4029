@@ -1,4 +1,8 @@
-#include "..\common\PID.h"
+#ifndef MOVEMENT_H
+#define MOVEMENT_H
+
+#include "PID.h"
+#include "Util.h"
 
 /*
 Movement constants
@@ -12,31 +16,28 @@ const float TURN_SCALAR = 1.1; //because it's not a square
 
 void fullStop();
 void turn(int speed);
+void turnWithGyro(int speed, int heading);
 void translateRT(int speed, int angle);
 void translateXY(int fwd, int right);
 void resetEncoders();
 int inchesToEncoder(int distance);
 int degreesToEncoder(int angle);
-void pause(float seconds);
-void turnUltra(int servo_index, int angle);
 
 const int WINCHSTOP = 12;
 
-void grabTube(){
-	servo[grabber] = 255;
-	pause(1);
-	servo[grabber] = 127;
-}
-task releaseTube(){
-	servo[grabber] = 0;
-	pause(1.3);
-	servo[grabber] = 127;
-}
+//void grabTube(){
+//	servo[grabber] = 255;
+//	pause(1);
+//	servo[grabber] = 127;
+//}
+//task releaseTube(){
+//	servo[grabber] = 0;
+//	pause(1.3);
+//	servo[grabber] = 127;
+//}
 
 task init() {
-	startTask(releaseTube);
-	turnUltra(0, 0);
-	turnUltra(1, 0);
+	//startTask(releaseTube);
 }
 
 /*
@@ -119,14 +120,6 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 	move(0);
 }
 
-int min(int a, int b)
-{
-	if (a < b)
-		return a;
-	else
-		return b;
-}
-
 void translateDistance(int speed, int angle, int distance) {
 	int target;
 	if (angle % 90 == 0)
@@ -178,10 +171,6 @@ void turnDistance(int speed, int angle) {
 	turn(0); //stop
 }
 
-void pause(float seconds) {
-	wait1Msec(seconds * 1000);
-}
-
 void translateRT(int speed, int angle) {
 	//if(speed > 60)
 	//	speed = 60;
@@ -201,7 +190,6 @@ void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorBackLeft] = fwd - right;
 }
 
-
 /*
 Encoder business
 */
@@ -220,112 +208,4 @@ int degreesToEncoder(int angle) {
 	return (angle/360.0 * TURN_CIRCUMFERENCE)/CIRCUMFERENCE * ENCODER_SCALE * TURN_SCALAR;
 }
 
-//Turns the ultrasonic indicated to the angle indicated.
-//Asynchronous, so you have to wait a bit.
-void turnUltra(int servo_index, int angle) {
-	int scaled = angle * 256.0/180.0;
-	int ZERO;
-	switch(servo_index) {
-		case 0:
-			ZERO = 157;
-			servo[frontTurret] = ZERO - scaled;
-			break;
-		case 1:
-			ZERO = 135;
-			servo[rearTurret] =  ZERO + scaled ;
-			break;
-	}
-}
-
-/*
-Hybrid functions
-*/
-void tillSense(int speed, int angle, bool see_now, int threshold, tSensors sonar){
-		translateRT(speed,angle);
-		while((SensorValue[sonar]<threshold)==see_now || SensorValue[sonar] == 255){
-
-		}
-
-		translateRT(0, 0);
-}
-
-void changeDetection(int speed, int angle, int jumpThreshold, tSensors sonar) {
-	int dist = SensorValue[sonar];
-
-	while (abs(dist - SensorValue[sonar]) < jumpThreshold) {
-		translateRT(speed, angle);
-		dist = SensorValue[sonar];
-	}
-
-	translateRT(0, 0);
-}
-void findWall(){
-	while(SensorValue[frontUltra] == 255 && SensorValue[rearUltra] == 255){
-		for(int i = 0; i<90; i++) {
-			turnUltra(0, i);
-			turnUltra(1, i);
-			pause(0.05);
-			if(SensorValue[frontUltra] != 255) {
-				turnDistance(50, i);
-				break;
-			}
-			if(SensorValue[rearUltra] != 255) {
-				turnDistance(-50, i);
-				break;
-			}
-		}
-	}
-	turnUltra(0, 0);
-	turnUltra(1, 0);
-	pause(0.5);
-}
-void parallel(int speed, int threshold, tSensors sensorA, tSensors sensorB){
-	if(sensorValue[sensorA] == 255 && sensorValue[sensorB]){ findWall(); }
-	int valA = SensorValue[sensorA];
-	int valB = SensorValue[sensorB];
-	while (abs(valA - valB) >= threshold) {
-		pause(0.02);
-		valA = SensorValue[sensorA];
- 		valB = SensorValue[sensorB];
- 		//turn((valA - valB) * 0.20 * speed);
-		turn(speed * (valA>valB ? 1 : -1));
-	}
-	turn(0);
-}
-
-void incrementalParallel(int speed, int threshold, tSensors sensorA, tSensors sensorB) {
-	if(sensorValue[sensorA] == 255 && sensorValue[sensorB]){ findWall(); }
-	int valA = SensorValue[sensorA];
-	int valB = SensorValue[sensorB];
-	int count =0;
-	while (count<=3) {
-		if(sensorValue[sensorA] == 255 && sensorValue[sensorB]){ findWall(); }
-		if(abs(valA - valB) <= threshold){
-			count++;
-		}
-		else{
-			count=0;
-			turnDistance(speed * (valA>valB ? 1 : -1), 1);
-		}
-		pause(0.02);
-		valA = SensorValue[sensorA];
- 		valB = SensorValue[sensorB];
- 		//turn((valA - valB) * 0.20 * speed);
-		//turnDistance(speed * (valA>valB ? 1 : -1), 1);
-	}
-	turn(0);
-}
-
-void lateralCenter(int speed, int angle, int threshold, tSensors sensorA, tSensors sensorB){
-	turnUltra(0,angle);
-	turnUltra(1,angle);
-	pause(0.5);
-	int valA = SensorValue[sensorA];
-	int valB = SensorValue[sensorB];
-	while (abs(valA - valB) > threshold) {
-		valA = SensorValue[sensorA];
- 		valB = SensorValue[sensorB];
-		move(speed * (valA>valB ? 1 : -1));
-	}
-	turn(0);
-}
+#endif /* MOVEMENT_H */

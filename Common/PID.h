@@ -1,3 +1,6 @@
+#ifndef PID_H
+#define PID_H
+
 typedef struct {
 	float Kp;
 	float Ki;
@@ -17,3 +20,5 @@ float updatePID(PID &pid, float error, float position) {
 
 	return pTerm + iTerm - dTerm;
 }
+
+#endif /* PID_H */
