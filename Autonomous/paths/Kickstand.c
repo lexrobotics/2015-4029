@@ -1,6 +1,8 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  none)
 #pragma config(Hubs,  S2, HTServo,  HTServo,  HTMotor,  none)
-#pragma config(Sensor, S3,     HTSMUX,         sensorLowSpeed)
+#pragma config(Sensor, S1,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S2,     ,               sensorI2CMuxController)
+#pragma config(Sensor, S3,     HTSMUX,         sensorI2CCustom)
 #pragma config(Sensor, S4,     HTSPB,          sensorI2CCustomFast9V)
 #pragma config(Motor,  mtr_S1_C1_1,     motorBackRight, tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorFrontRight, tmotorTetrix, openLoop, reversed, encoder)
@@ -18,7 +20,7 @@
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_1,    frontTurret,          tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_2,    rearTurret,           tServoStandard)
-#pragma config(Servo,  srvo_S2_C2_3,    servo9,               tServoNone)
+#pragma config(Servo,  srvo_S2_C2_3,    kickstand,            tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_4,    servo10,              tServoNone)
 #pragma config(Servo,  srvo_S2_C2_5,    servo5,               tServoStandard)
 #pragma config(Servo,  srvo_S2_C2_6,    servo6,               tServoStandard)
@@ -30,8 +32,8 @@
 
 #define robotLength 12.0
 
-const tMUXSensor frontUS = msensor_S3_1;
-const tMUXSensor rearUS = msensor_S3_2;
+const tMUXSensor frontUS = msensor_S3_4;
+const tMUXSensor rearUS = msensor_S3_3;
 
 void sound(int number, float pausetime){
 	int i;
@@ -46,17 +48,11 @@ void Position1() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	pause(0.1);
-	moveDistance(-50, 8);
-	turnDistance(-50, 90);
-	pause(0.1);
-	tillSense(-200, 0, false, 90, rearUS);
-	pause(0.5);
-
-	parallel(30, 0, frontUS, rearUS);
-	pause(0.5);
-	tillSense(-50, 0, true, 90, frontUS);
-	tillSense(-200, 90, false, 12, frontUS);
- 	moveDistance(100, 12);
+	moveDistance(50, 10);
+	turnDistance(50, 120);
+	//pause(0.5);
+	//tillSense(-50, 0, true, 100, frontUS);
+ //	moveDistance(100, 60);
 }
 
 void performTheCharge() {
@@ -74,36 +70,33 @@ void performTheCharge() {
 	}
 }
 
+void deployKnocker() {
+	servo[kickstand] = 130;
+}
+
+void retractKnocker() {
+	servo[kickstand] = 255;
+}
+
 void Position2() {
 	sound(2,0.2);
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	pause(0.1);
-	turnDistance(50, 45);
-	translateDistance(-200, 90, 20);
-	pause(0.1);
-	performTheCharge();
-	moveDistance(100, 30);
-	//tillSense(-200, 90, false, 5, frontUS);
-	//pause(0.1);
-	//parallel(30, 0, ultra0, ultra1);
-	//pause(0.1);
-	//tillSense(-50, 90, false, 30, ultra0);
-	//tillSense(-50, 0, true, 90, ultra1);
-	//pause(0.1);
-	//turnDistance(50, 90);
-	//turnUltra(1, 0);
-	//pause(0.1);
-	//tillSense(-50, 0, false, 25, ultra0);
-	//tillSense(-50, 0, true, 30, ultra0);
-}
+	turnDistance(50, 40);
+	deployKnocker();
+	tillSense(200, 0, false, 60, frontUS);
+	tillSense(200, 270, false, 38, frontUS);
+	moveDistance(100,30);
+	}
 
 void Position3() {
-	sound(3,0.2);
+	sound(3,0.5);
 	turnUltra(0, 0);
-	translateDistance(200, 90, 20);
-	tillSense(50, 0, false, 90, frontUS);
-	tillSense(200, 90, false, 10, frontUS);
+	translateDistance(200, 90, 30);
+	tillSense(50, 0, true, 90, frontUS);
+	moveDistance(200, 100);
+
 }
 
 int detectPosition(){
@@ -111,9 +104,9 @@ int detectPosition(){
 	const int READINGS = 30;
 	int READINGSARR[30];
 	for(int i=0; i<READINGS; i++) {
-		READINGSARR[i]=USreadDist(rearUS);
-		avg += USreadDist(rearUS);
-		wait1Msec(20):
+		READINGSARR[i]=USreadDist(frontUS);
+		avg += USreadDist(frontUS);
+		wait1Msec(5):
 	}
 	avg /= READINGS;
 	float filtered_avg = 0;
@@ -124,16 +117,22 @@ int detectPosition(){
 		}
 	}
 	filtered_avg = filtered_avg/30;
+	//	while(true){
+	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
+	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
+	//	wait1Msec(5);
+	//}
 
-	if(filtered_avg < 60)
+	if(filtered_avg < 70)
 		return 3;
-	else if(100 > filtered_avg && filtered_avg > 65)
+	else if(100 > filtered_avg && filtered_avg > 70)
 		return 1;
 	else
 		return 2;
 }
 
 void Kickstand() {
+	retractKnocker();
 	turnUltra(0, 90);
 	moveDistance(50, 20);
 	pause(0.3);
@@ -160,9 +159,13 @@ void Kickstand() {
 
 #ifndef AUTO_COMPETITION
 task main() {
-	resetArduino();
-	pause(5);
-	turnWithGyro(50, 90);
-	//Kickstand();
+	Kickstand();
+	//deployKnocker();
+	while(true){
+		nxtDisplayCenteredTextLine(1,"front: %d", USreadDist(frontUS));
+		nxtDisplayCenteredTextLine(2,"back: %d", USreadDist(rearUS));
+		wait1Msec(5);
+	}
+
 }
 #endif
