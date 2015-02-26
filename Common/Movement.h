@@ -78,20 +78,24 @@ void moveDistance(int speed, int distance) {
 
 void moveDistancePID(int distance) {
 	PID forwardsPID;
- 	forwardsPID.Kp = 0.04;
- 	forwardsPID.Ki = 0.00001;
+ 	forwardsPID.Kp = 0.02;
+	forwardsPID.Ki = 0.0000;
  	forwardsPID.Kd = 0;
  	forwardsPID.integral = 0;
 
 	float target = inchesToEncoder(distance);
 	float error = target;
-	float speed = 100;
-
+	float speed = 50;
+	int finalRamp = 20;
 	resetEncoders();
-	while(abs(error) > 50) {
+	while(abs(error) > 50 && finalRamp > 5) {
 		error = target - nMotorEncoder[motorBackRight];
 		speed = updatePID(forwardsPID, error, nMotorEncoder[motorBackRight]);
-		writeDebugStreamLine("%f", speed);
+		nxtDisplayCenteredTextLine(2, "%f", speed);
+		if(abs(speed) < finalRamp) {
+			speed = sgn(distance) * finalRamp;
+			finalRamp--;
+		}
 		move(speed);
 	}
 	move(0);

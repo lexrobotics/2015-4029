@@ -28,7 +28,8 @@ Hybrid functions
 */
 void tillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
 		translateRT(speed,angle);
-		while((USreadDist(sonar)<threshold)==see_now || USreadDist(sonar) == 255){
+		while((USreadDist(sonar)<threshold)==see_now || (USreadDist(sonar) == 255 && !see_now)){
+			writeDebugStreamLine("%d",USreadDist(sonar));
 
 		}
 
