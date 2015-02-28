@@ -84,6 +84,8 @@ Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 void initTeleOp() {
 	servo[kickstand] = 255;
 	servo[sock] = 127;
+	servo[grabberLift1] = 127;
+	servo[grabberLift2] = 127;
 }
 
 task arm() {
@@ -151,6 +153,13 @@ task arm() {
 		else {
 			motor[lift1] = 0;
 			motor[lift2] = 0;
+		}
+
+		if(joy2Btn(3)) {
+			servo[kickstand] = 140;
+		}
+		else {
+			servo[kickstand] = 255;
 		}
 
 		if(joy1Btn(9)) {
