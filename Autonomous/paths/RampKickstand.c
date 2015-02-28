@@ -33,23 +33,11 @@
 //#include "../../Common/IMU.h"
 #include "../../Common/Movement.h"
 
-#define robotLength 12.0
-
 const tMUXSensor frontUS = msensor_S3_4;
 const tMUXSensor rearUS = msensor_S3_3;
 
-void releaseTube() {
-	servo[grabber] = 255;
-	pause(1.2);
-	servo[grabber] = 127;
-}
-
-void grabTube() {
-	servo[grabber] = 0;
-	pause(1.4);
-	servo[grabber] = 127;
-}
 void RampKickstand() {
+	servo[kickstand] = 255;
 	StartTask(init);
 	turnUltra(0, 0);
 	turnUltra(1, 0);
@@ -95,7 +83,6 @@ void RampKickstand() {
 
 #ifndef AUTO_COMPETITION
 task main() {
-	servo[kickstand] = 255;
 	RampKickstand();
 }
 #endif

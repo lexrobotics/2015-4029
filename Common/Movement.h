@@ -25,16 +25,17 @@ int degreesToEncoder(int angle);
 
 const int WINCHSTOP = 12;
 
-//void grabTube(){
-//	servo[grabber] = 255;
-//	pause(1);
-//	servo[grabber] = 127;
-//}
-//task releaseTube(){
-//	servo[grabber] = 0;
-//	pause(1.3);
-//	servo[grabber] = 127;
-//}
+void releaseTube() {
+	servo[grabber] = 255;
+	pause(1.2);
+	servo[grabber] = 127;
+}
+
+void grabTube() {
+	servo[grabber] = 0;
+	pause(1.4);
+	servo[grabber] = 127;
+}
 
 task init() {
 	//startTask(releaseTube);
