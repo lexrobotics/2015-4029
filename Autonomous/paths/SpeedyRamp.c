@@ -48,27 +48,37 @@ void grabTube() {
 }
 void SpeedyRamp() {
 	StartTask(init);
+	turnUltra(0, 0);
+	turnUltra(1, 0);
 	releaseTube();
 	moveDistancePID(-95);
 	grabTube();
-	//moveDistance(100, 20);
-	//pause(0.1);
 
-	//tillSense(200, 90, true, 75, frontUS);
-	//pause(0.1);
-	////parallel(25, 2, rearUltra, frontUltra);
-	//pause(0.2);
-	//turnUltra(0, 90);
-	//pause(0.3);
+	tillSense(200, 90, true, 75, frontUS);
+	pause(0.1);
+	incrementalParallel(25, 2, rearUS, frontUS);
+	pause(0.2);
+	turnUltra(0, 90);
+	pause(0.3);
+	tillSense(100, 0, false, 50, frontUS);
 	//tillSense(100, 0, false, 60, frontUS);
 	//pause(0.1);
 	//turnDistance(-100, 180);
-	//turnUltra(0, 0);
 	//pause(0.3);
-	//translateDistance(-200, 90, 24);
-	//pause(0.1);
-	//releaseTube();
-	//pause(0.2);
+	//translateDistance(-200, 90, 40);
+	turnUltra(0, 0);
+	pause(0.3);
+	tillSense(200, 90, true, 65, frontUS);
+	pause(0.1);
+	turnDistance(-50, 90);
+	pause(0.1);
+	releaseTube();
+	pause(0.2);
+	turnDistance(-50, 90);
+	grabTube();
+	move(-50);
+	pause(1);
+	move(0);
 	//moveDistance(100, 5);
 	//servo[lift1] = WINCHSTOP;
 	//servo[lift2] = WINCHSTOP;
@@ -76,7 +86,9 @@ void SpeedyRamp() {
 
 #ifndef AUTO_COMPETITION
 task main() {
-	servo[kickstand] = 255;
+	//translateDistance(200, 90, 24);
+	//servo[kickstand] = 255;
 	SpeedyRamp();
+
 }
 #endif

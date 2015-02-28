@@ -30,8 +30,6 @@
 //#include "../../Common/IMU.h"
 #include "../../Common/Movement.h"
 
-#define robotLength 12.0
-
 const tMUXSensor frontUS = msensor_S3_4;
 const tMUXSensor rearUS = msensor_S3_3;
 
@@ -57,8 +55,9 @@ void Position1() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	pause(0.1);
-	moveDistance(50, 12);
+	moveDistance(50, 16);
 	deployKnocker();
+	pause(0.5);
 	turnDistance(50, 120);
 
 	//pause(0.5);
@@ -90,7 +89,7 @@ void Position2() {
 	tillSense(200, 0, false, 60, frontUS);
 	tillSense(150, 270, false, 25, frontUS);
 	deployKnocker();
-	pause(0.3);
+	pause(0.5);
 	moveDistance(30,20);
 	}
 
@@ -103,7 +102,7 @@ void Position3() {
 	tillSense(50, 0, false, 90, frontUS);
 	tillSense(200, 270, false, 30, frontUS);
 	deployKnocker();
-	pause(0.3);
+	pause(0.5);
 	moveDistance(30, 20);
 
 }
@@ -142,7 +141,7 @@ int detectPosition(){
 
 void Kickstand() {
 	retractKnocker();
-	turnUltra(0, 90);
+	turnUltra(0, 100);
 	moveDistance(50, 20);
 	pause(0.3);
 	int position = detectPosition();
@@ -166,8 +165,10 @@ void Kickstand() {
 }
 
 #ifndef AUTO_COMPETITION
+#ifndef RAMP_KICKSTAND
 task main() {
 	Kickstand();
 
 }
+#endif
 #endif
