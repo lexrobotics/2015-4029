@@ -41,7 +41,11 @@ void SpeedyRamp() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	releaseTube();
-	moveDistancePID(-95);
+	moveDistancePID(-58);
+	pause(0.1);
+	incrementalParallel(25, 2, rearUS, frontUS);
+	pause(0.2);
+	moveDistancePID(-37);
 	grabTube();
 
 	tillSense(200, 90, true, 75, frontUS);

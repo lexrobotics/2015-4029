@@ -91,19 +91,19 @@ void initTeleOp() {
 task arm() {
   getJoystickSettings(joystick);
 	while(true) {
-		if(joy2Btn(6)) {
-			motor[conveyor] = 100;
+		if(joystick.joy2_TopHat == 0) {
+			motor[conveyor] = 25;
 		}
-		else if(Joy2Btn(8)) {
-			motor[conveyor] = -100;
+		else if(joystick.joy2_TopHat == 4) {
+			motor[conveyor] = -25;
 		}
 		else {
 			motor[conveyor] = 0;
 		}
-		if(joy1Btn(7)) {
+		if(joy1Btn(5)) {
 			servo[grabber] = 255;
 		}
-		else if(joy1Btn(5)) {
+		else if(joy1Btn(7)) {
 			servo[grabber] = 0;
 		}
 		else {
@@ -144,14 +144,21 @@ task arm() {
 
 		if(joy2Btn(5)) {
 			motor[lift1] = 100;
-			motor[lift2] = 100;
 		}
 		else if(joy2Btn(7)) {
 			motor[lift1] = -100;
-			motor[lift2] = -100;
 		}
 		else {
 			motor[lift1] = 0;
+		}
+
+		if(joy2Btn(6)) {
+			motor[lift2] = 100;
+		}
+		else if(joy2Btn(8)) {
+			motor[lift2] = -100;
+		}
+		else {
 			motor[lift2] = 0;
 		}
 
@@ -202,16 +209,16 @@ task main(){
 	  //float JoyToWheel = 95.0 / max(max(max(abs(y2 + x2),abs(y1 - x1)),max(abs(y2 - x1),abs(y2 + x2))), 10);
 		float joyToWheel = 1.0;
 		if(reverse == -1) {
-			motor[motorFrontRight] =  -1 * normalize10(y2 - x2) * JoyToWheel;
-		  motor[motorFrontLeft] = -1 * normalize10(y1 + x1) * JoyToWheel;
-		  motor[motorBackRight] =  -1 * normalize10(y2 + x1) * JoyToWheel;
-		  motor[motorBackLeft] = -1 * normalize10(y1 - x2) * JoyToWheel;
+			motor[motorFrontRight] =  normalize10(y1 - x2) * joyToWheel;
+		  motor[motorFrontLeft] = normalize10(y2 + x1) * joyToWheel;
+		  motor[motorBackRight] =  normalize10(y1 + x1) * joyToWheel;
+		  motor[motorBackLeft] =  normalize10(y2 - x2) * joyToWheel;
 		}
 		else {
-		  motor[motorFrontLeft] =  normalize10(y2 - x2) * JoyToWheel;
-		  motor[motorFrontRight] = normalize10(y1 + x1) * JoyToWheel;
-		  motor[motorBackLeft] =  normalize10(y2 + x1) * JoyToWheel;
-		  motor[motorBackRight] = normalize10(y1 - x2) * JoyToWheel;
+		  motor[motorFrontLeft] =  normalize10(y1 + x2) * joyToWheel;
+		  motor[motorFrontRight] = normalize10(y2 - x1) * joyToWheel;
+		  motor[motorBackLeft] =  normalize10(y1 - x1) * joyToWheel;
+		  motor[motorBackRight] = normalize10(y2 + x1) * joyToWheel;
 		}
   }
 }
