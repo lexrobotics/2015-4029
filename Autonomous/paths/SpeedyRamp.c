@@ -7,7 +7,7 @@
 #pragma config(Motor,  mtr_S1_C1_1,     motorBackRight, tmotorTetrix, openLoop, encoder)
 #pragma config(Motor,  mtr_S1_C1_2,     motorFrontRight, tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorBackLeft, tmotorTetrix, openLoop, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C2_2,     motorFrontLeft, tmotorTetrix, openLoop, encoder)
+#pragma config(Motor,  mtr_S1_C2_2,     motorFrontLeft, tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C3_1,     motorH,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S2_C3_1,     motorj,        tmotorTetrix, openLoop)
@@ -32,29 +32,33 @@
 
 #define robotLength 12.0
 
-const tMUXSensor frontUS = msensor_S3_4;
-const tMUXSensor rearUS = msensor_S3_3;
-
 void SpeedyRamp() {
-	servo[kickstand] = 255;
-	StartTask(init);
-	turnUltra(0, 0);
-	turnUltra(1, 0);
-	releaseTube();
-	moveDistancePID(-58);
-	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
-	pause(0.2);
-	moveDistancePID(-37);
-	grabTube();
+	StartTask(init); // Initialize all servos and stuff!
 
-	tillSense(200, 90, true, 75, frontUS);
+	turnUltra(0, 0); // Initiate ultrasonics to point at wall
+	turnUltra(1, 0);
+
+	releaseTube(); // ready to receive tube
+
+	moveDistancePID(-70); // move down the ramp
+
 	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
+	incrementalParallel(25, 2, rearUS, frontUS); //Parallel to the wall
 	pause(0.2);
-	turnUltra(0, 90);
+	tillSense(100, 270, 4, true, frontUS); //???
+	incrementalParallel(25, 2, rearUS, frontUS); //Parallel again to be extra sure
+	pause(0.2);
+
+	moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
+
+	grabTube(); //Lower the tube grabber
+	servo[grabber] = 0; //...?
+	moveDistance(50, 16);
+	servo[grabber] = 127;//.......
 	pause(0.3);
-	tillSense(100, 0, false, 50, frontUS);
+
+	move(0);
+	//tillSense(100, 0, false, 50, frontUS);
 	//tillSense(100, 0, false, 60, frontUS);
 	//pause(0.1);
 	//turnDistance(-100, 180);
@@ -64,6 +68,11 @@ void SpeedyRamp() {
 	pause(0.3);
 	tillSense(200, 90, true, 65, frontUS);
 	pause(0.1);
+	incrementalParallel(25, 2, rearUS, frontUS);
+	pause(0.2);
+	turnUltra(0, 90);
+	pause(0.3);
+	tillSense(100, 0, false, 50, frontUS);
 	turnDistance(-50, 90);
 	pause(0.1);
 	releaseTube();

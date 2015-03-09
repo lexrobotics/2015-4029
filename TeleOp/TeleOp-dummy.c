@@ -8,9 +8,9 @@
 #pragma config(Motor,  mtr_S1_C1_2,     motorFrontRight, tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     motorBackLeft, tmotorTetrix, openLoop, reversed, encoder)
 #pragma config(Motor,  mtr_S1_C2_2,     motorFrontLeft, tmotorTetrix, openLoop, encoder)
-#pragma config(Motor,  mtr_S1_C3_1,     lift1,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C3_1,     lift1,         tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S2_C3_1,     lift2,         tmotorTetrix, openLoop, reversed)
+#pragma config(Motor,  mtr_S2_C3_1,     lift2,         tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S2_C3_2,     conveyor,      tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S2_C1_1,    servo1,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_2,    servo2,               tServoNone)
@@ -110,20 +110,20 @@ task arm() {
 			servo[grabber] = 127;
 		}
 		if(joy1Btn(6)) {
-			motor[harvester] = 75;
+			motor[harvester] = 100;
 		}
 		else if(joy1Btn(8)) {
-			motor[harvester] = -75;
+			motor[harvester] = -100;
 		}
 		else {
 			motor[harvester] = 0;
 		}
 
-		if(joy1Btn(4)) {
+		if(joy1Btn(2)) {
 			servo[grabberLift1] = 255;
 			servo[grabberLift2] = 0;
 		}
-		else if(joy1Btn(2)) {
+		else if(joy1Btn(4)) {
 			servo[grabberLift1] = 0;
 			servo[grabberLift2] = 255;
 		}
@@ -184,11 +184,6 @@ task arm() {
 
 task main(){
   float x1, y1, x2, y2;
-  float p1, p2, p3, p4 = 0;
-  float prevP1, prevP2, prevP3, prevP4;
-
-  const float A = 1;
-
   bool harvesting = false;
   bool belting = false;
 
@@ -211,40 +206,19 @@ task main(){
 	  	y2 *= 0.2;
 	  }
 
-		p1 = normalize10(A * normalize10(y1 + reverse * x2) + (1 - A) * p1);
-		p2 = normalize10(A * normalize10(y2 - reverse * x1) + (1 - A) * p2);
-		p3 = normalize10(A * normalize10(y1 - reverse * x1) + (1 - A) * p3);
-		p4 = normalize10(A * normalize10(y2 + reverse * x2) + (1 - A) * p4);
-
-		//const int thresh = 20;
-		//if(abs(p1 - prevP1) > thresh) {
-		//	p1 = prevP1 + sgn(p1 - prevP1);
+	 // //float JoyToWheel = 95.0 / max(max(max(abs(y2 + x2),abs(y1 - x1)),max(abs(y2 - x1),abs(y2 + x2))), 10);
+		//float joyToWheel = 1.0;
+		//if(reverse == -1) {
+		//	motor[motorFrontRight] =  normalize10(y1 - x2) * joyToWheel;
+		//  motor[motorFrontLeft] = normalize10(y2 + x1) * joyToWheel;
+		//  motor[motorBackRight] =  normalize10(y1 + x1) * joyToWheel;
+		//  motor[motorBackLeft] =  normalize10(y2 - x2) * joyToWheel;
 		//}
-		//if(abs(p2 - prevP2) > thresh) {
-		//	p2 = prevP2 + sgn(p2 - prevP2);
+		//else {
+		//  motor[motorFrontLeft] =  normalize10(y1 + x2) * joyToWheel;
+		//  motor[motorFrontRight] = normalize10(y2 - x1) * joyToWheel;
+		//  motor[motorBackLeft] =  normalize10(y1 - x1) * joyToWheel;
+		//  motor[motorBackRight] = normalize10(y2 + x1) * joyToWheel;
 		//}
-		//if(abs(p3 - prevP3) > thresh) {
-		//	p3 = prevP3 + sgn(p3 - prevP3);
-		//}
-		//if(abs(p4 - prevP4) > thresh) {
-		//	p4 = prevP4 + sgn(p4 - prevP4);
-		//}
-		//prevP1 = p1;
-		//prevP2 = p2;
-		//prevP3 = p3;
-		//prevP4 = p4;
-
-	  if(reverse == -1) {
-			motor[motorFrontRight] = p1;
-		  motor[motorFrontLeft] = p2;
-		  motor[motorBackRight] = p3;
-		  motor[motorBackLeft] = p4;
-		}
-		else {
-		  motor[motorFrontLeft] = p1;
-		  motor[motorFrontRight] = p2;
-		  motor[motorBackLeft] = p3;
-		  motor[motorBackRight] = p4;
-		}
   }
 }

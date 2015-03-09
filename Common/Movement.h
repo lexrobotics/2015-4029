@@ -4,6 +4,8 @@
 #include "PID.h"
 #include "Util.h"
 
+
+
 /*
 Movement constants
 */
@@ -14,19 +16,60 @@ const float TURN_RADIUS = 12.73; //center of robot to turning circle in inches
 const float TURN_CIRCUMFERENCE = 2.0 * TURN_RADIUS * PI; //circumference of circle robot turns in
 const float TURN_SCALAR = 1.1; //because it's not a square
 
+//Initialization
+task init();
+
+//Self-explanatory tube-grabber manipulation.
+void releaseTube();
+void grabTube();
+
+//Basic tank-drive movement
 void fullStop();
+void move(int speed);
 void turn(int speed);
-void turnWithGyro(int speed, int heading);
+
+//Movement abstractions - tank drive
+void moveDistance(int speed, int distance);
+void moveDistancePID(int distance);
+void moveDistancePID(int distance, float _Kp, float _Ki);
+
+//Movement abstractions - turning in place
+void turnDistance(int speed, int angle);
+void turnDistancePID(int angle);
+
+//Movement abstraction - mecanum drive
 void translateRT(int speed, int angle);
 void translateXY(int fwd, int right);
+void translateDistance(int speed, int angle, int distance);
+
+//Encoder business for drive motors
 void resetEncoders();
 int inchesToEncoder(int distance);
 int degreesToEncoder(int angle);
 
+//Gyro-based turning
+//void turnWithGyro(int speed, int heading);
+
 const int WINCHSTOP = 12;
 
+
+
+
+
+
+
+
+/*
+HERE BEGINS THE CODE
+*/
+
+task init() {
+	//startTask(releaseTube);
+	servo[kickstand] = 255; // kickstand hook
+}
+
 void releaseTube() {
-	servo[grabber] = 255;
+	servo[grabber] = 255; //.....................???
 	pause(1.2);
 	servo[grabber] = 127;
 }
@@ -35,10 +78,6 @@ void grabTube() {
 	servo[grabber] = 0;
 	pause(1.4);
 	servo[grabber] = 127;
-}
-
-task init() {
-	//startTask(releaseTube);
 }
 
 /*
@@ -87,9 +126,9 @@ void moveDistancePID(int distance) {
 	float target = inchesToEncoder(distance);
 	float error = target;
 	float speed = 50;
-	int finalRamp = 20;
+	int finalRamp = 40;
 	resetEncoders();
-	while(abs(error) > 50 && finalRamp > 5) {
+	while(abs(error) > 50 && finalRamp > 15) {
 		error = target - nMotorEncoder[motorBackRight];
 		speed = updatePID(forwardsPID, error, nMotorEncoder[motorBackRight]);
 		nxtDisplayCenteredTextLine(2, "%f", speed);
@@ -125,22 +164,14 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 	move(0);
 }
 
-void translateDistance(int speed, int angle, int distance) {
-	int target;
-	if (angle % 90 == 0)
-		target = inchesToEncoder(distance);
-	else
-		target = inchesToEncoder(distance * min(abs(1/cos(PI * angle / 180.0)), abs(1/sin(PI * angle / 180.0))));
+void turnDistance(int speed, int angle) {
+	int target = degreesToEncoder(angle);
 	resetEncoders();
 
 	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
-		&& abs(nMotorEncoder[motorBackRight]) < abs(target)
-		&& abs(nMotorEncoder[motorFrontRight]) < abs(target)
-		&& abs(nMotorEncoder[motorBackLeft]) < abs(target)) {
-			translateRT(speed, angle); //move at desired speed
-		}
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) turn(speed); //turn at desired speed
 
-	fullStop(); //stop
+	turn(0); //stop
 }
 
 void turnDistancePID(int angle) {
@@ -166,16 +197,6 @@ void turnDistancePID(int angle) {
 	move(0);
 }
 
-void turnDistance(int speed, int angle) {
-	int target = degreesToEncoder(angle);
-	resetEncoders();
-
-	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
-		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) turn(speed); //turn at desired speed
-
-	turn(0); //stop
-}
-
 void translateRT(int speed, int angle) {
 	//if(speed > 60)
 	//	speed = 60;
@@ -193,6 +214,24 @@ void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorBackRight] = fwd + right;
 	motor[motorFrontRight] = fwd - right;
 	motor[motorBackLeft] = fwd - right;
+}
+
+void translateDistance(int speed, int angle, int distance) {
+	int target;
+	if (angle % 90 == 0)
+		target = inchesToEncoder(distance);
+	else
+		target = inchesToEncoder(distance * min(abs(1/cos(PI * angle / 180.0)), abs(1/sin(PI * angle / 180.0))));
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)
+		&& abs(nMotorEncoder[motorFrontRight]) < abs(target)
+		&& abs(nMotorEncoder[motorBackLeft]) < abs(target)) {
+			translateRT(speed, angle); //move at desired speed
+		}
+
+	fullStop(); //stop
 }
 
 /*

@@ -6,6 +6,9 @@
 #include "drivers/hitechnic-sensormux.h"
 #include "drivers/lego-ultrasound.h"
 
+const tMUXSensor frontUS = msensor_S3_3;
+const tMUXSensor rearUS = msensor_S3_4;
+
 //Turns the ultrasonic indicated to the angle indicated.
 //Asynchronous, so you have to wait a bit.
 void turnUltra(int servo_index, int angle) {
