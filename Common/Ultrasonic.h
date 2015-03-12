@@ -24,10 +24,12 @@ void turnUltra(int servo_index, int angle) {
 Hybrid functions
 */
 void tillSense(int speed, int angle, bool see_now, int threshold, tSensors sonar){
-		translateRT(speed,angle);
-		while((SensorValue[sonar]<threshold)==see_now || SensorValue[sonar] == 255){
+		//see_now describes whether the ultrasonic is currently within the threshold.
+		//True is that it is within the threshold.
+		//the robot will move in the specified way until the robot's ultrasonic no longer agrees with see_now.
 
-		}
+		translateRT(speed,angle);
+		while(((SensorValue[sonar]<threshold)==see_now) || (SensorValue[sonar] == 255)){}
 
 		translateRT(0, 0);
 }
@@ -111,5 +113,37 @@ void lateralCenter(int speed, int angle, int threshold, tSensors sensorA, tSenso
 		move(speed * (valA>valB ? 1 : -1));
 	}
 	turn(0);
+}
+
+int detectPosition(){
+	float avg = 0;
+	const int READINGS = 30;
+	int READINGSARR[30];
+	for(int i=0; i<READINGS; i++) {
+		READINGSARR[i]=USreadDist(frontUS);
+		avg += USreadDist(frontUS);
+		wait1Msec(5):
+	}
+	avg /= READINGS;
+	float filtered_avg = 0;
+	int threshold = 30;
+	for(int i=0; i<READINGS; i++){
+		if(abs(avg - READINGSARR[i])<threshold){
+			filtered_avg += READINGSARR[i];
+		}
+	}
+	filtered_avg = filtered_avg/30;
+	//	while(true){
+	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
+	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
+	//	wait1Msec(5);
+	//}
+
+	if(filtered_avg < 70)
+		return 3;
+	else if(100 > filtered_avg && filtered_avg > 70)
+		return 1;
+	else
+		return 2;
 }
 #endif /* ULTRASONIC_H */
