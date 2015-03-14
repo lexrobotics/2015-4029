@@ -28,6 +28,7 @@
 
 #include "../../Common/Ultrasonic-SMUX.h"
 //#include "../../Common/IMU.h"
+#include "SixtyCM.h"
 #include "../../Common/Movement.h"
 
 #define robotLength 12.0
@@ -40,51 +41,14 @@ void SpeedyRamp() {
 
 	releaseTube(); // ready to receive tube
 
-	moveDistancePID(-70); // move down the ramp
+	SixtyCM();
 
-	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS); //Parallel to the wall
-	pause(0.2);
-	tillSense(100, 270, 4, true, frontUS); //???
-	incrementalParallel(25, 2, rearUS, frontUS); //Parallel again to be extra sure
-	pause(0.2);
-
-	moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
-
-	grabTube(); //Lower the tube grabber
-	servo[grabber] = 0; //...?
-	moveDistance(50, 16);
-	servo[grabber] = 127;//.......
-	pause(0.3);
-
-	move(0);
-	//tillSense(100, 0, false, 50, frontUS);
-	//tillSense(100, 0, false, 60, frontUS);
-	//pause(0.1);
-	//turnDistance(-100, 180);
-	//pause(0.3);
-	//translateDistance(-200, 90, 40);
-	turnUltra(0, 0);
-	pause(0.3);
-	tillSense(200, 90, true, 65, frontUS);
-	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
-	pause(0.2);
-	turnUltra(0, 90);
-	pause(0.3);
-	tillSense(100, 0, false, 50, frontUS);
-	turnDistance(-50, 90);
+	turnDistance(-50, 180);
+	translateDistance(200, 270, 12);
 	pause(0.1);
 	releaseTube();
 	pause(0.2);
-	turnDistance(-50, 90);
-	grabTube();
-	move(-50);
-	pause(1);
-	move(0);
-	//moveDistance(100, 5);
-	//servo[lift1] = WINCHSTOP;
-	//servo[lift2] = WINCHSTOP;
+	moveDistance(100, 10);
 }
 
 #ifndef AUTO_COMPETITION

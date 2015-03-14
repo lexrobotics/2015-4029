@@ -4,7 +4,6 @@
 #include "drivers/hitechnic-superpro.h"
 
 bool armSwitch, sideSwitch;
-int dummy;
 
 void readAllSwitches() {
 	armSwitch = (HTSPBreadADC(HTSPB, 2, 10) == 1023);

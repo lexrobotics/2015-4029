@@ -30,11 +30,8 @@
 
 #include "Kickstand.c"
 #include "../../Common/Ultrasonic-SMUX.h"
-//#include "../../Common/IMU.h"
+#include "SixtyCM.h"
 #include "../../Common/Movement.h"
-
-const tMUXSensor frontUS = msensor_S3_4;
-const tMUXSensor rearUS = msensor_S3_3;
 
 void RampKickstand() {
 	servo[kickstand] = 255;
@@ -42,25 +39,9 @@ void RampKickstand() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	releaseTube();
-	moveDistancePID(-58);
-	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
-	pause(0.2);
-		moveDistancePID(-37);
-	grabTube();
 
-	tillSense(200, 90, true, 75, frontUS);
-	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
-	pause(0.2);
-	turnUltra(0, 90);
-	pause(0.3);
-	tillSense(100, 0, false, 43, frontUS);
-	//tillSense(100, 0, false, 60, frontUS);
-	//pause(0.1);
-	//turnDistance(-100, 180);
-	//pause(0.3);
-	//translateDistance(-200, 90, 40);
+	SixtyCM();
+
 	turnUltra(0, 0);
 	pause(0.3);
 	tillSense(200, 90, true, 68, frontUS);

@@ -46,6 +46,28 @@ void findWall(tMUXSensor frontUltra, tMUXSensor rearUltra){
 	turnUltra(1, 0);
 	pause(0.5);
 }
+
+/*
+Hybrid functions
+*/
+// hold on to your socks clive
+void filteredTillSense(int speed, int angle, bool see_now, int threshold, float a = 0.1, tMUXSensor sonar){
+		//see_now describes whether the ultrasonic is currently within the threshold.
+		//True is that it is within the threshold.
+		//the robot will move in the specified way until the robot's ultrasonic no longer agrees with see_now.
+		float value = USreadDist(sonar);
+		translateRT(speed,angle);
+		//while(((value<threshold)==see_now) || ((value == 255) && (!see_now))){
+		while(true){
+			value = a * USreadDist(sonar) + (1-a) * value;
+			writeDebugStreamLine("%d", USreadDist(sonar));
+			wait10Msec(1);
+		}
+		writeDebugStreamLine("%d", value);
+	  	writeDebugStreamLine("DONE!");
+		translateRT(0, 0);
+}
+
 /*
 Hybrid functions
 */
@@ -56,8 +78,32 @@ void tillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor son
 
 		translateRT(speed,angle);
 		while(((USreadDist(sonar)<threshold)==see_now) || ((USreadDist(sonar) == 255) && (!see_now))){
+			writeDebugStreamLine("%d", USreadDist(sonar));
+						wait10Msec(1);
 		}
+		writeDebugStreamLine("%d", USreadDist(sonar));
+	  	writeDebugStreamLine("DONE!");
+		translateRT(0, 0);
+}
 
+void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
+		//see_now describes whether the ultrasonic is currently within the threshold.
+		//True is that it is within the threshold.
+		//the robot will move in the specified way until the robot's ultrasonic no longer agrees with see_now.
+		int ct = 0;
+
+		translateRT(speed,angle);
+		while(true){
+			if(USreadDist(sonar) == 255)
+				ct++;
+			else if(((USreadDist(sonar)<threshold)==see_now) || ct > 10) {
+				break;
+			}
+			else {
+				ct = 0;
+			}
+			wait1Msec(5);
+		}
 		translateRT(0, 0);
 }
 
@@ -125,8 +171,8 @@ void lateralCenter(int speed, int angle, int threshold, tMUXSensor sensorA, tMUX
 
 int detectPosition(){
 	float avg = 0;
-	const int READINGS = 30;
-	int READINGSARR[30];
+	const float READINGS = 50.0;
+	int READINGSARR[50];
 	for(int i=0; i<READINGS; i++) {
 		READINGSARR[i]=USreadDist(frontUS);
 		avg += USreadDist(frontUS);
@@ -134,13 +180,13 @@ int detectPosition(){
 	}
 	avg /= READINGS;
 	float filtered_avg = 0;
-	int threshold = 30;
+	int threshold = 20;
 	for(int i=0; i<READINGS; i++){
 		if(abs(avg - READINGSARR[i])<threshold){
 			filtered_avg += READINGSARR[i];
 		}
 	}
-	filtered_avg = filtered_avg/30;
+	filtered_avg = filtered_avg/READINGS;
 	//	while(true){
 	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
 	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);

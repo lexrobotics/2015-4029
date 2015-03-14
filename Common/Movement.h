@@ -174,6 +174,43 @@ void turnDistance(int speed, int angle) {
 	turn(0); //stop
 }
 
+//void moveDistanceRamp(int speed, int distance) {
+//	float target1 = 0.5 * inchesToEncoder(distance);
+//	int target2 = inchesToEncoder(distance);
+//	resetEncoders();
+
+//	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target1)  //wait until position reached
+//		&& abs(nMotorEncoder[motorBackRight]) < abs(target1)) {
+//			move(speed); //move at desired speed
+//		}
+
+//	int posFL = nMotorEncoder[motorFrontLeft];
+//	int posBR = nMotorEncoder[motorBackRight];
+
+//	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target2)  //wait until position reached
+//		&& abs(nMotorEncoder[motorBackRight]) < abs(target2)) {
+//			move((speed-20) * ((target2 - (nMotorEncoder[motorFrontLeft] - posFL))/(target2+posFL) + 20)); //move at desired speed
+//		}
+//}
+
+void moveDistanceRamp(int speed, int distance) {
+	int target = inchesToEncoder(distance);
+	resetEncoders();
+
+	if(speed < 0) {
+		nxtDisplayCenteredTextLine(2, "Clive I dare you");
+		while(true) {
+			PlaySound(soundBeepBeep);
+		}
+	}
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) {
+			move(((speed - 20) * (target-nMotorEncoder[motorFrontLeft])/target) + 20); //move at desired speed
+	}
+	move(0);
+}
+
 void turnDistancePID(int angle) {
 	PID turnPID;
  	turnPID.Kp = 0.1;
