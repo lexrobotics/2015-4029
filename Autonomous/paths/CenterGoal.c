@@ -104,18 +104,21 @@ void deployKnocker() {
 void Position1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	repeatedTillSense(200, 270, true, 80, frontUS);
+	binaryTillSense(200, 270, 10, frontUS);
+	playSound(soundlowBuzzShort);
 	translateDistance(200, 270, 25);
-	repeatedTillSense(50,0,false, 60, clampUS);
+	writeDebugStream("DONE WITH FIRST");
+	binaryTillSense(50, 0, 10, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 7);
 }
 
 void Position2() {
-	turnDistance(-100, 35);
-	tillSense(100,0,false, 30, clampUS);
+	turnDistance(-100, 50);
+	//tillSense(100,0,false, 30, clampUS);
+	binaryTillSense(50,0,10,clampUS);
 	pause(0.5);
-	moveDistance(-50, 3);
+	moveDistanceRamp(-50, 3);
 }
 
 void Position3() {
@@ -127,7 +130,7 @@ void Position3() {
 	pause(0.2);
 	translateDistance(100, 90, 16);
 	pause(0.2);
-	repeatedTillSense(50,0,false, 50, clampUS);
+	binaryTillSense(50,0, 10, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 	pause(0.2);
@@ -142,9 +145,10 @@ void CenterToKickstand() {
 
 	turnUltra(0,0);
 	pause(0.2);
-	tillSense(50,0,false, 35, frontUS);
+	binaryTillSense(40,0,10, frontUS);
 	pause(0.2);
-	tillSense(200, 270, false, 30, frontUS);
+	tillSense(200, 270, false, 25, frontUS);
+	pause(0.2);
 	deployKnocker();
 	moveDistance(30, 10);
 	moveDistance(100, 30);
@@ -152,15 +156,14 @@ void CenterToKickstand() {
 }
 
 void CenterGoal() {
-	int irsector = HTIRS2readACDir(HTIRS2);
 	retractKnocker();
 	turnUltra(0, 90);
 	//moveDistance(50, 20);
 	StartTask(raiseLift);
 	moveDistanceRamp(50, 20);
 	//moveDistancePID(20);
-	pause(0.3);
-	int position = detectPosition(irsector);
+	pause(1);
+	int position = detectPosition();
 	switch(position) {
 		case 1:
 			sound(1, 0.2);
