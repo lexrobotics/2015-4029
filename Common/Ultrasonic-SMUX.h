@@ -5,6 +5,7 @@
 
 #include "drivers/hitechnic-sensormux.h"
 #include "drivers/lego-ultrasound.h"
+#include "drivers/hitechnic-irseeker-v2.h"
 
 const tMUXSensor clampUS = msensor_S3_1;
 const tMUXSensor frontUS = msensor_S3_3;
@@ -94,13 +95,14 @@ void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSe
 
 		translateRT(speed,angle);
 		while(true){
-			if(USreadDist(sonar) == 255)
+			if((USreadDist(sonar) > threshold) == see_now) {
 				ct++;
-			else if(((USreadDist(sonar)<threshold)==see_now) || ct > 10) {
-				break;
 			}
 			else {
 				ct = 0;
+			}
+			if(ct > 10) {
+				break;
 			}
 			wait1Msec(5);
 		}
@@ -171,6 +173,50 @@ void lateralCenter(int speed, int angle, int threshold, tMUXSensor sensorA, tMUX
 
 int detectPosition(){
 	float avg = 0;
+	float READINGS = 50.0;
+	int READINGSARR[50];
+	for(int i=0; i<READINGS; i++) {
+		READINGSARR[i]=USreadDist(frontUS);
+		avg += USreadDist(frontUS);
+		wait1Msec(5);
+	}
+	avg /= READINGS;
+	float filtered_avg = 0;
+	int threshold = 20;
+	for(int i=0; i<READINGS; i++){
+		if(abs(avg - READINGSARR[i])<threshold){
+			filtered_avg += READINGSARR[i];
+		}
+		else {
+			READINGS--;
+		}
+	}
+	filtered_avg = filtered_avg/READINGS;
+	//	while(true){
+	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
+	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
+	//	wait1Msec(5);
+
+	if(filtered_avg < 70)
+		return 3;
+	else if(100 > filtered_avg && filtered_avg > 70)
+		return 1;
+	else
+		return 2;
+
+	//if(filtered_avg > 110){
+	//	return 2;
+	//}
+	//else if( (3 < irsector) && (irsector < 7 )){
+	//	return 3;
+	//}
+	//else {
+	//		return 1;
+	//}
+}
+
+int detectPosition(int irsector){
+	float avg = 0;
 	const float READINGS = 50.0;
 	int READINGSARR[50];
 	for(int i=0; i<READINGS; i++) {
@@ -191,13 +237,22 @@ int detectPosition(){
 	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
 	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
 	//	wait1Msec(5);
-	//}
 
-	if(filtered_avg < 70)
-		return 3;
-	else if(100 > filtered_avg && filtered_avg > 70)
-		return 1;
-	else
+	//if(filtered_avg < 70)
+	//	return 3;
+	//else if(100 > filtered_avg && filtered_avg > 70)
+	//	return 1;
+	//else
+	//	return 2;
+
+	if(filtered_avg > 110){
 		return 2;
+	}
+	else if( (3 < irsector) && (irsector < 7 )){
+		return 3;
+	}
+	else {
+			return 1;
+	}
 }
 #endif /* ULTRASONIC_SMUX_H */

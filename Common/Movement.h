@@ -197,16 +197,9 @@ void moveDistanceRamp(int speed, int distance) {
 	int target = inchesToEncoder(distance);
 	resetEncoders();
 
-	if(speed < 0) {
-		nxtDisplayCenteredTextLine(2, "Clive I dare you");
-		while(true) {
-			PlaySound(soundBeepBeep);
-		}
-	}
-
 	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
 		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) {
-			move(((speed - 20) * (target-nMotorEncoder[motorFrontLeft])/target) + 20); //move at desired speed
+			move(sgn(speed) * (((abs(speed) - 20) * (target-abs(nMotorEncoder[motorFrontLeft]))/target) + 20)); //move at desired speed
 	}
 	move(0);
 }

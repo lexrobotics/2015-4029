@@ -34,6 +34,8 @@
 
 #define robotLength 12.0
 
+const tMUXSensor HTIRS2 = msensor_S3_2;
+
 bool lifted = false;
 bool servosLifted = false;
 
@@ -55,7 +57,7 @@ task raiseServos() {
 task raiseLift() {
 	StartTask(raiseServos);
 	servo[clamp1] = 0;
-	pause(0.3); // #freejin
+	pause(0.6);
 	servo[clamp1] = 127;
 
 	nMotorEncoder[lift1] = 0;
@@ -102,12 +104,11 @@ void deployKnocker() {
 void Position1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	tillSense(200, 270, true, 80, frontUS);
-	pause(0.2);
-	translateDistance(200, 270, 30);
-	tillSense(100,0,false, 30, clampUS);
+	repeatedTillSense(200, 270, true, 80, frontUS);
+	translateDistance(200, 270, 25);
+	repeatedTillSense(50,0,false, 60, clampUS);
 	pause(0.5);
-	moveDistance(-50, 5);
+	moveDistanceRamp(-50, 7);
 }
 
 void Position2() {
@@ -126,29 +127,32 @@ void Position3() {
 	pause(0.2);
 	translateDistance(100, 90, 16);
 	pause(0.2);
-	tillSense(50,0,false, 50, clampUS);
+	repeatedTillSense(50,0,false, 50, clampUS);
 	pause(0.5);
-	moveDistance(-50, 3);
+	moveDistanceRamp(-50, 3);
 	pause(0.2);
 }
 
 void CenterToKickstand() {
 	translateDistance(100,270,10);
 	pause(0.2);
-	moveDistance(-100, 28);
+	moveDistance(-100, 25);
 	pause(0.2);
-	turnDistance(50,95);
-	pause(0.2);
-	tillSense(200, 0, false, 60, frontUS);
-	deployKnocker();
-	tillSense(150, 270, false, 25, frontUS);
-	pause(0.5);
-	moveDistance(30,20);
+	turnDistance(50,110);
 
+	turnUltra(0,0);
+	pause(0.2);
+	tillSense(50,0,false, 35, frontUS);
+	pause(0.2);
+	tillSense(200, 270, false, 30, frontUS);
+	deployKnocker();
+	moveDistance(30, 10);
+	moveDistance(100, 30);
 
 }
 
 void CenterGoal() {
+	int irsector = HTIRS2readACDir(HTIRS2);
 	retractKnocker();
 	turnUltra(0, 90);
 	//moveDistance(50, 20);
@@ -156,7 +160,7 @@ void CenterGoal() {
 	moveDistanceRamp(50, 20);
 	//moveDistancePID(20);
 	pause(0.3);
-	int position = detectPosition();
+	int position = detectPosition(irsector);
 	switch(position) {
 		case 1:
 			sound(1, 0.2);
@@ -192,7 +196,7 @@ void CenterGoal() {
 		}
 	}
 	PlaySound(soundBeepBeep);
-	translateRT(50, 100);
+	translateRT(200, 120);
 	scoreBall();
 	move(0);
 	//kickstand
