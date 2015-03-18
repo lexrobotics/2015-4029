@@ -4,8 +4,6 @@
 #include "PID.h"
 #include "Util.h"
 
-
-
 /*
 Movement constants
 */
@@ -50,22 +48,44 @@ int degreesToEncoder(int angle);
 //Gyro-based turning
 //void turnWithGyro(int speed, int heading);
 
-const int WINCHSTOP = 12;
-
-
-
-
-
-
-
-
-/*
-HERE BEGINS THE CODE
-*/
-
 task init() {
 	//startTask(releaseTube);
 	servo[kickstand] = 255; // kickstand hook
+}
+
+bool lifted = false;
+bool servosLifted = false;
+
+task raiseServos() {
+	servo[centerLift] = 255;
+	pause(4);
+	servo[centerLift] = 127;
+	servosLifted = true;
+}
+
+task raiseLift() {
+	StartTask(raiseServos);
+	servo[clamp1] = 0;
+	pause(0.6);
+	servo[clamp1] = 127;
+
+	nMotorEncoder[lift1] = 0;
+	nMotorEncoder[lift2] = 0;
+	pause(0.3);
+
+	const int ENCODER_TARGET = 8 * 1100;
+
+	while(abs(nMotorEncoder[lift1]) < ENCODER_TARGET ||
+		abs(nMotorEncoder[lift2]) < ENCODER_TARGET) {
+		motor[lift1] = -100;
+		motor[lift2] = -100;
+	}
+
+	motor[lift1] = 0;
+	motor[lift2] = 0;
+
+	while(!servosLifted);
+	lifted = true;
 }
 
 void releaseTube() {
@@ -78,6 +98,30 @@ void grabTube() {
 	servo[grabber] = 0;
 	pause(1.4);
 	servo[grabber] = 127;
+}
+
+void sound(int number, float pausetime){
+	int i;
+	for(i=0; i<number;i++){
+		PlaySound(soundBlip);
+		pause(pausetime);
+	}
+}
+
+void deployClamp() {
+	servo[clamp1] = 0;
+	pause(1.5);
+	servo[clamp1] = 127;
+}
+
+void deployKnocker() {
+	servo[kickstand] = 70;
+	pause(0.3);
+	servo[kickstand] = 120;
+}
+
+void retractKnocker() {
+	servo[kickstand] = 255;
 }
 
 /*

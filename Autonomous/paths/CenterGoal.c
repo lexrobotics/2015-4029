@@ -15,7 +15,7 @@
 #pragma config(Servo,  srvo_S2_C1_1,    centerLift,           tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_2,    ballDrop,             tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_3,    sock,                 tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C1_4,    clamp1,                tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C1_4,    clamp1,               tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
 #pragma config(Servo,  srvo_S2_C2_1,    frontTurret,          tServoStandard)
@@ -32,88 +32,26 @@
 #include "../../Common/Touch.h"
 #include "../../Common/Movement.h"
 
-#define robotLength 12.0
-
-const tMUXSensor HTIRS2 = msensor_S3_2;
-
-bool lifted = false;
-bool servosLifted = false;
-
-void sound(int number, float pausetime){
-	int i;
-	for(i=0; i<number;i++){
-		playsound(soundBlip);
-		pause(pausetime);
-	}
-}
-
-task raiseServos() {
-	servo[centerLift] = 255;
-	pause(4);
-	servo[centerLift] = 127;
-	servosLifted = true;
-}
-
-task raiseLift() {
-	StartTask(raiseServos);
-	servo[clamp1] = 0;
-	pause(0.6);
-	servo[clamp1] = 127;
-
-	nMotorEncoder[lift1] = 0;
-	nMotorEncoder[lift2] = 0;
-	pause(0.3);
-
-	const int ENCODER_TARGET = 8 * 1100;
-
-	while(abs(nMotorEncoder[lift1]) < ENCODER_TARGET ||
-		abs(nMotorEncoder[lift2]) < ENCODER_TARGET) {
-		motor[lift1] = -100;
-		motor[lift2] = -100;
-	}
-
-	motor[lift1] = 0;
-	motor[lift2] = 0;
-
-	while(!servosLifted);
-	lifted = true;
-}
-
 void scoreBall() {
 	servo[ballDrop] = 255;
 	pause(1.6);
 	servo[ballDrop] = 127;
 }
 
-void deployClamp() {
-	servo[clamp1] = 0;
-	pause(1.5);
-	servo[clamp1] = 127;
-}
-
-void retractKnocker() {
-	servo[kickstand] = 255;
-}
-
-void deployKnocker() {
-	servo[kickstand] = 70;
-	pause(0.3);
-	servo[kickstand] = 120;
-}
-
-void Position1() {
+void CenterPosition1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	binaryTillSense(200, 270, 10, frontUS);
-	playSound(soundlowBuzzShort);
+	binaryTillSense(80, 270, 10, frontUS);
+	PlaySound(soundLowBuzzShort);
 	translateDistance(200, 270, 25);
 	writeDebugStream("DONE WITH FIRST");
-	binaryTillSense(50, 0, 10, clampUS);
+	//binaryTillSense(40, 0, 10, clampUS);
+	repeatedTillSense(50, 0, false, 60, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 7);
 }
 
-void Position2() {
+void CenterPosition2() {
 	turnDistance(-100, 50);
 	//tillSense(100,0,false, 30, clampUS);
 	binaryTillSense(50,0,10,clampUS);
@@ -121,7 +59,7 @@ void Position2() {
 	moveDistanceRamp(-50, 3);
 }
 
-void Position3() {
+void CenterPosition3() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	turnDistance(-100, 95);
@@ -130,7 +68,7 @@ void Position3() {
 	pause(0.2);
 	translateDistance(100, 90, 16);
 	pause(0.2);
-	binaryTillSense(50,0, 10, clampUS);
+	binaryTillSense(40,0, 10, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 	pause(0.2);
@@ -167,15 +105,15 @@ void CenterGoal() {
 	switch(position) {
 		case 1:
 			sound(1, 0.2);
-			Position1();
+			CenterPosition1();
 			break;
 		case 2:
 			sound(2, 0.2);
-			Position2();
+			CenterPosition2();
 			break;
 		case 3:
 			sound(3, 0.2);
-			Position3();
+			CenterPosition3();
 			break;
 		default:
 			return;
@@ -189,7 +127,7 @@ void CenterGoal() {
 	while(!sideSwitch || !armSwitch) {
 		readAllSwitches();
 		if(sideSwitch) { PlaySound(soundLowBuzz); }
-		if(armSwitch) { PlaySound(soundUpwardTones) }
+		if(armSwitch) { PlaySound(soundUpwardTones); }
 		if(sideSwitch || armSwitch) {
 			move(-20);
 		}
@@ -202,8 +140,6 @@ void CenterGoal() {
 	translateRT(200, 120);
 	scoreBall();
 	move(0);
-	//kickstand
-	CenterToKickstand();
 }
 
 #ifndef AUTO_COMPETITION
