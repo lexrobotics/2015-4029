@@ -43,12 +43,12 @@ void CenterPosition1() {
 	moveDistanceRamp(50, 12);
 	binaryTillSense(80, 270, 10, frontUS);
 	PlaySound(soundLowBuzzShort);
-	translateDistance(200, 270, 25);
+	translateDistance(200, 270, 30);
 	writeDebugStream("DONE WITH FIRST");
 	//binaryTillSense(40, 0, 10, clampUS);
 	repeatedTillSense(50, 0, false, 60, clampUS);
 	pause(0.5);
-	moveDistanceRamp(-50, 7);
+	moveDistanceRamp(-50, 3);
 }
 
 void CenterPosition2() {

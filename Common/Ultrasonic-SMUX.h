@@ -230,7 +230,7 @@ int detectPosition(){
 	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
 	//	wait1Msec(5);
 
-	if(filtered_avg < 70)
+	if(filtered_avg < 65)
 		return 3;
 	else if(100 > filtered_avg && filtered_avg > 70)
 		return 1;
