@@ -55,6 +55,7 @@ task emergencyAutoWatch() {
 }
 
 task main() {
+	if(nAvgBatteryLevel < 13200){ playSound(soundException)}
 	nNxtExitClicks = 3;
 	StartTask(emergencyAutoWatch);
 	string teleopFileName = "TeleOp.c";

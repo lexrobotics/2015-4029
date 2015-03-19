@@ -84,6 +84,7 @@ Random idea: https://www.youtube.com/watch?v=igaGWlMFdSw
 void initTeleOp() {
 	servo[kickstand] = 255;
 	servo[clamp1] = 127;
+	servo[ballDrop] = 127;
 	servo[grabberLift1] = 127;
 	servo[grabberLift2] = 127;
 }

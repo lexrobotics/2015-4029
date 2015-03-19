@@ -128,11 +128,13 @@ void CenterGoal() {
 		readAllSwitches();
 		if(sideSwitch) { PlaySound(soundLowBuzz); }
 		if(armSwitch) { PlaySound(soundUpwardTones); }
-		if(sideSwitch || armSwitch) {
+		if(sideSwitch) {
 			move(-20);
 		}
-
-		else {
+		else if(USreadDist(clampUS) > 200) {
+			move(20);
+		}
+		else  {
 			translateRT(100, 90);
 		}
 	}
