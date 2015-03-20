@@ -12,9 +12,9 @@
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S2_C3_1,     lift2,         tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S2_C3_2,     conveyor,      tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S2_C1_1,    centerLift,           tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C1_1,    no,                   tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_2,    ballDrop,             tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C1_3,    sock,                 tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C1_3,    centerLift,           tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_4,    clamp1,               tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
@@ -51,6 +51,7 @@ MOUNTING THE WHEELS:
 
 #include "JoystickDriver.c"
 #include "../common/Util.h"
+#include "../common/Ultrasonic-SMUX.h"
 
 bool slow = false;
 int reverse = 1;
@@ -87,6 +88,8 @@ void initTeleOp() {
 	servo[ballDrop] = 127;
 	servo[grabberLift1] = 127;
 	servo[grabberLift2] = 127;
+	turnUltra(0,90);
+	turnUltra(1,90);
 }
 
 task arm() {

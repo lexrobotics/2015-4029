@@ -12,9 +12,9 @@
 #pragma config(Motor,  mtr_S1_C3_2,     harvester,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S2_C3_1,     lift2,         tmotorTetrix, PIDControl, reversed, encoder)
 #pragma config(Motor,  mtr_S2_C3_2,     conveyor,      tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S2_C1_1,    centerLift,           tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C1_1,    no,                   tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_2,    ballDrop,             tServoContinuousRotation)
-#pragma config(Servo,  srvo_S2_C1_3,    sock,                 tServoContinuousRotation)
+#pragma config(Servo,  srvo_S2_C1_3,    centerLift,           tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_4,    clamp1,               tServoContinuousRotation)
 #pragma config(Servo,  srvo_S2_C1_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S2_C1_6,    servo6,               tServoNone)
@@ -41,12 +41,12 @@ void scoreBall() {
 void CenterPosition1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	binaryTillSense(80, 270, 10, frontUS);
+	binaryTillSense(80, 270, 20, frontUS);
 	PlaySound(soundLowBuzzShort);
 	translateDistance(200, 270, 30);
 	writeDebugStream("DONE WITH FIRST");
-	//binaryTillSense(40, 0, 10, clampUS);
-	repeatedTillSense(50, 0, false, 60, clampUS);
+	binaryTillSense(40, 0, 20, clampUS);
+	//repeatedTillSense(50, 0, false, 60, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 }
@@ -54,7 +54,7 @@ void CenterPosition1() {
 void CenterPosition2() {
 	turnDistance(-100, 50);
 	//tillSense(100,0,false, 30, clampUS);
-	binaryTillSense(50,0,10,clampUS);
+	binaryTillSense(50,0,20,clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 }
@@ -68,13 +68,13 @@ void CenterPosition3() {
 	pause(0.2);
 	translateDistance(100, 90, 16);
 	pause(0.2);
-	binaryTillSense(40,0, 10, clampUS);
+	binaryTillSense(40,0, 20, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 	pause(0.2);
 }
 
-void CenterToKickstand() {
+void CenterToKickstand(int position) {
 	translateDistance(100,270,10);
 	pause(0.2);
 	moveDistance(-100, 25);
@@ -85,7 +85,11 @@ void CenterToKickstand() {
 	pause(0.2);
 	binaryTillSense(40,0,10, frontUS);
 	pause(0.2);
-	tillSense(200, 270, false, 25, frontUS);
+	if(position == 3)
+		tillSense(200, 270, false, 27, frontUS);
+	else
+		tillSense(200, 270, false, 25, frontUS);
+
 	pause(0.2);
 	deployKnocker();
 	moveDistance(30, 10);
@@ -93,12 +97,12 @@ void CenterToKickstand() {
 
 }
 
-void CenterGoal() {
+int CenterGoal() {
 	retractKnocker();
 	turnUltra(0, 90);
 	//moveDistance(50, 20);
 	StartTask(raiseLift);
-	moveDistanceRamp(50, 20);
+	moveDistanceRamp(40, 20);
 	//moveDistancePID(20);
 	pause(1);
 	int position = detectPosition();
@@ -116,7 +120,7 @@ void CenterGoal() {
 			CenterPosition3();
 			break;
 		default:
-			return;
+			return -1;
 	}
 
 	while(!lifted);
@@ -124,15 +128,27 @@ void CenterGoal() {
 
 	readAllSwitches();
 	//scoring commences
+	ClearTimer(T1);
+	int time = 35;
+	bool anything_pressed = false;
 	while(!sideSwitch || !armSwitch) {
 		readAllSwitches();
-		if(sideSwitch) { PlaySound(soundLowBuzz); }
-		if(armSwitch) { PlaySound(soundUpwardTones); }
+		if(!anything_pressed && time100[T1] > time){
+			bool s = sideSwitch;
+			translateDistance(50,270,2);
+			if(s)
+				moveDistance(-50, 2);
+			else
+				translateDistance(50,0,2);
+			ClearTimer(T1);
+			anything_pressed = false;
+			time = 20;
+		};
+		if(sideSwitch) { PlaySound(soundLowBuzz); anything_pressed = true; }
+		if(armSwitch) { PlaySound(soundUpwardTones); anything_pressed = true;}
 		if(sideSwitch) {
 			move(-20);
-		}
-		else if(USreadDist(clampUS) > 200) {
-			move(20);
+
 		}
 		else  {
 			translateRT(100, 90);
@@ -142,10 +158,13 @@ void CenterGoal() {
 	translateRT(200, 120);
 	scoreBall();
 	move(0);
+	return position;
 }
 
 #ifndef AUTO_COMPETITION
 task main() {
-	CenterGoal();
+
+	int position = CenterGoal();
+	CenterToKickstand(position);
 }
 #endif

@@ -37,7 +37,7 @@ void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 	int currentreading;
 	int lastreading = USreadDist(sonar);
 	wait10Msec(1);
-	float avg = USreadDist(sonar) - lastreading;
+	float avg = USreadDist(sonar) ;
 	int i;
 	for(i=0;i<readings;i++){
 		readingsarr[i] = avg;
@@ -47,12 +47,11 @@ void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 	int initcount=0;
 	while(ct<10){
 		currentreading = USreadDist(sonar);
-		diff = currentreading - lastreading;
+		diff = currentreading;
 		if( abs(avg - diff) > threshold && initcount>10){
 			ct++;
 		}
 		else{
-			writeDebugStreamLine("%f",avg);
 			ct=0;
 			avg = ((avg * readings) - readingsarr[index] + diff) / readings ;
 			readingsarr[index] = diff;
@@ -203,36 +202,55 @@ void lateralCenter(int speed, int angle, int threshold, tMUXSensor sensorA, tMUX
 	turn(0);
 }
 
+float stdDev(int *a, int avg, float len) {
+
+}
+
 int detectPosition(){
 	float avg = 0;
 	float READINGS = 50.0;
 	int READINGSARR[50];
 	for(int i=0; i<READINGS; i++) {
 		int sensevalue = USreadDist(frontUS);
+		if(sensevalue == 0){
+			while(true)PlaySound(soundBeepBeep)};
+		writeDebugStreamLine("sense value: %d", sensevalue);
 		READINGSARR[i]=sensevalue;
 		avg += sensevalue;
 		wait1Msec(5);
 	}
 	avg /= READINGS;
-	float filtered_avg = 0;
-	int threshold = 10;
-	for(int i=0; i<READINGS; i++){
-		if(abs(avg - READINGSARR[i])<threshold){
-			filtered_avg += READINGSARR[i];
-		}
-		else {
-			READINGS--;
-		}
+
+	float sum=0;
+	for(int i=0; i<READINGS; i++) {
+		float t = pow(READINGSARR[i] - avg, 2);
+		writeDebugStreamLine("%f", t);
+		sum += t;
 	}
-	filtered_avg = filtered_avg/READINGS;
+	writeDebugStreamLine("sum: %f", sum);
+	sum /= READINGS;
+	float threshold = sqrt(sum);
+
+	writeDebugStream("stdev: %f", threshold);
+	float filtered_avg = 0;
+	float filteredReadings = 0;
+	for(int i=0; i<READINGS; i++){
+		if(abs(avg - READINGSARR[i])<=threshold){
+			filtered_avg += READINGSARR[i];
+			filteredReadings++;
+		}
+
+	}
+	filtered_avg = filtered_avg/filteredReadings;
 	//	while(true){
 	//	nxtDisplayCenteredTextLine(1,"front: %f", filtered_avg);
 	//	nxtDisplayCenteredTextLine(2,"back: %f", avg);
 	//	wait1Msec(5);
 
-	if(filtered_avg < 65)
+	writeDebugStreamLine("filtered avg: %d; stdev: %f", filtered_avg, threshold);
+	if(filtered_avg < 70)
 		return 3;
-	else if(100 > filtered_avg && filtered_avg > 70)
+	else if(110 > filtered_avg && filtered_avg > 70)
 		return 1;
 	else
 		return 2;
