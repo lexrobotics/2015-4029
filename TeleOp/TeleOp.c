@@ -105,6 +105,16 @@ task arm() {
 			motor[conveyor] = 0;
 		}
 
+		if(joystick.joy2_TopHat == 2) {
+			servo[ballDrop] = 255;
+		}
+		else if(joystick.joy2_TopHat == 6) {
+			servo[ballDrop] = 0;
+		}
+		else {
+			servo[ballDrop] = 127;
+		}
+
 		if(joy2Btn(9)) {
 			servo[centerLift] = 255;
 		}

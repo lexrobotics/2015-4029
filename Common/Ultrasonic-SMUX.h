@@ -212,8 +212,7 @@ int detectPosition(){
 	int READINGSARR[50];
 	for(int i=0; i<READINGS; i++) {
 		int sensevalue = USreadDist(frontUS);
-		if(sensevalue == 0){
-			while(true)PlaySound(soundBeepBeep)};
+
 		writeDebugStreamLine("sense value: %d", sensevalue);
 		READINGSARR[i]=sensevalue;
 		avg += sensevalue;

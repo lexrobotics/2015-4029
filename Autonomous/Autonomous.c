@@ -67,7 +67,7 @@ task main() {
 	PATHS.strings[4] = "Kickstand";
 	PATHS.len = 5;
 
-	const int MENU_ENTRIES = 3;
+	const int MENU_ENTRIES = 4;
 	int delay = 0;
 	int path = 0;
 	int step = 0;
@@ -84,6 +84,9 @@ task main() {
 		}
 		else if(step == 1) {
 			delay = selectInt("Delay", delay);
+		}
+		else if(step == 2) {
+			nxtDisplayCenteredTextLine(2, "%d", USreadDist(frontUS));
 		}
 		else {
 			finalCheck();

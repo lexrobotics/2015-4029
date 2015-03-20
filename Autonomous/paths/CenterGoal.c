@@ -54,9 +54,9 @@ void CenterPosition1() {
 void CenterPosition2() {
 	turnDistance(-100, 50);
 	//tillSense(100,0,false, 30, clampUS);
-	binaryTillSense(50,0,20,clampUS);
+	binaryTillSense(30,0,30,clampUS);
 	pause(0.5);
-	moveDistanceRamp(-50, 3);
+	moveDistanceRamp(-50, 2);
 }
 
 void CenterPosition3() {
@@ -83,11 +83,13 @@ void CenterToKickstand(int position) {
 
 	turnUltra(0,0);
 	pause(0.2);
-	binaryTillSense(40,0,10, frontUS);
+	repeatedTillSense(50, 0, false, 90, frontUS);
 	pause(0.2);
-	if(position == 3)
+	if(position == 2)
 		tillSense(200, 270, false, 27, frontUS);
-	else
+	else if(position == 1)
+		tillSense(200, 270, false, 22, frontUS);
+	else if(position == 3);
 		tillSense(200, 270, false, 25, frontUS);
 
 	pause(0.2);
@@ -134,21 +136,15 @@ int CenterGoal() {
 	while(!sideSwitch || !armSwitch) {
 		readAllSwitches();
 		if(!anything_pressed && time100[T1] > time){
-			bool s = sideSwitch;
 			translateDistance(50,270,2);
-			if(s)
-				moveDistance(-50, 2);
-			else
-				translateDistance(50,0,2);
+			moveDistance(-50, 2);
 			ClearTimer(T1);
 			anything_pressed = false;
-			time = 20;
 		};
 		if(sideSwitch) { PlaySound(soundLowBuzz); anything_pressed = true; }
 		if(armSwitch) { PlaySound(soundUpwardTones); anything_pressed = true;}
 		if(sideSwitch) {
 			move(-20);
-
 		}
 		else  {
 			translateRT(100, 90);
