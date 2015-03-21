@@ -134,6 +134,7 @@ task arm() {
 		else {
 			servo[grabber] = 127;
 		}
+
 		if(joy1Btn(6)) {
 			motor[harvester] = 100;
 		}
@@ -144,7 +145,7 @@ task arm() {
 			motor[harvester] = 0;
 		}
 
-		if(joy1Btn(2)) {
+		if(joy1Btn(2) || joy2Btn(1)) {
 			servo[grabberLift1] = 255;
 			servo[grabberLift2] = 0;
 		}

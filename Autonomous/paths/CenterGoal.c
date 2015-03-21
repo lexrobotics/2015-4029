@@ -32,6 +32,8 @@
 #include "../../Common/Touch.h"
 #include "../../Common/Movement.h"
 
+bool everPressed = false;
+
 void scoreBall() {
 	servo[ballDrop] = 255;
 	pause(1.6);
@@ -41,20 +43,20 @@ void scoreBall() {
 void CenterPosition1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	binaryTillSense(80, 270, 20, frontUS);
+	binaryTillSense(80, 270, 30, frontUS);
 	PlaySound(soundLowBuzzShort);
 	translateDistance(200, 270, 30);
 	writeDebugStream("DONE WITH FIRST");
-	binaryTillSense(40, 0, 20, clampUS);
-	//repeatedTillSense(50, 0, false, 60, clampUS);
+	//binaryTillSense(35, 0, 30, clampUS);
+	repeatedTillSense(35, 0, false, 70, clampUS);
 	pause(0.5);
-	moveDistanceRamp(-50, 3);
+	moveDistanceRamp(-50, 5);
 }
 
 void CenterPosition2() {
 	turnDistance(-100, 50);
-	//tillSense(100,0,false, 30, clampUS);
-	binaryTillSense(30,0,30,clampUS);
+	repeatedTillSense(40,0,false, 70, clampUS);
+	//binaryTillSense(30,0,30,clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 2);
 }
@@ -68,7 +70,8 @@ void CenterPosition3() {
 	pause(0.2);
 	translateDistance(100, 90, 16);
 	pause(0.2);
-	binaryTillSense(40,0, 20, clampUS);
+		repeatedTillSense(40,0,false, 70, clampUS);
+	//binaryTillSense(40,0, 30, clampUS);
 	pause(0.5);
 	moveDistanceRamp(-50, 3);
 	pause(0.2);
@@ -99,7 +102,17 @@ void CenterToKickstand(int position) {
 
 }
 
+task ohno() {
+	while(true) {
+		if(!everPressed && time1[T4] > 25000) {
+			StopAllTasks();
+		}
+	}
+}
+
 int CenterGoal() {
+	ClearTimer(T4);
+	//StartTask(ohno);
 	retractKnocker();
 	turnUltra(0, 90);
 	//moveDistance(50, 20);
@@ -137,17 +150,28 @@ int CenterGoal() {
 		readAllSwitches();
 		if(!anything_pressed && time100[T1] > time){
 			translateDistance(50,270,2);
-			moveDistance(-50, 2);
+			moveDistance(50, 3);
 			ClearTimer(T1);
 			anything_pressed = false;
 		};
-		if(sideSwitch) { PlaySound(soundLowBuzz); anything_pressed = true; }
-		if(armSwitch) { PlaySound(soundUpwardTones); anything_pressed = true;}
+		if(sideSwitch) { PlaySound(soundLowBuzz); anything_pressed = true; everPressed = true; }
+		if(armSwitch) { PlaySound(soundUpwardTones); anything_pressed = true; everPressed = true;}
 		if(sideSwitch) {
 			move(-20);
 		}
-		else  {
+		//else  {
+		//	translateRT(100, 90);
+		//}
+		else if (armSwitch)  {
 			translateRT(100, 90);
+		}
+		else {
+			if(USreadDist(clampUS)>40){
+					move(15);
+				}
+				else{
+					translateRT(100, 90);
+				}
 		}
 	}
 	PlaySound(soundBeepBeep);
@@ -159,7 +183,6 @@ int CenterGoal() {
 
 #ifndef AUTO_COMPETITION
 task main() {
-
 	int position = CenterGoal();
 	CenterToKickstand(position);
 }

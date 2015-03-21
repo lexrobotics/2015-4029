@@ -33,6 +33,7 @@
 #include "paths/Kickstand.c"
 #include "paths/SpeedyRamp.c"
 #include "paths/CenterGoal.c"
+#include "paths/Dummy.c"
 
 /* Autonomous.c
    Final layer of abstraction
@@ -65,7 +66,8 @@ task main() {
 	PATHS.strings[2] = "Ramp";
 	PATHS.strings[3] = "KickRamp";
 	PATHS.strings[4] = "Kickstand";
-	PATHS.len = 5;
+	PATHS.strings[5] = "None";
+	PATHS.len = 6;
 
 	const int MENU_ENTRIES = 4;
 	int delay = 0;
@@ -114,7 +116,11 @@ task main() {
 		Kickstand();
 		StartTask(raiseLift);
 	}
+	else {
+		StartTask(raiseLift);
+	}
 	releaseTube();
+	while(!lifted);
 }
 
 // snagged from ProgramChooser.c

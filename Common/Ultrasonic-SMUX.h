@@ -28,42 +28,107 @@ void turnUltra(int servo_index, int angle) {
 	}
 }
 
+//void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
+//	translateRT(0,0);
+//	int ct=0;
+//	int index =0;
+//	int readings = 10;
+//	int readingsarr[10];
+//	int currentreading;
+//	int lastreading = USreadDist(sonar);
+//	wait10Msec(1);
+//	float avg = USreadDist(sonar) ;
+//	int i;
+//	for(i=0;i<readings;i++){
+//		readingsarr[i] = avg;
+//	}
+//	translateRT(speed,angle);
+//	int diff;
+//	int initcount=0;
+//	while(ct<10){
+//		currentreading = USreadDist(sonar);
+//		diff = currentreading;
+//		if( abs(avg - diff) > threshold && initcount>10){
+//			ct++;
+//		}
+//		else{
+//			ct=0;
+//			avg = ((avg * readings) - readingsarr[index] + diff) / readings ;
+//			readingsarr[index] = diff;
+//			lastreading = currentreading;
+//			index = (index + 1)%readings;
+//		}
+//		wait10Msec(1);
+//		initcount++;
+//	}
+//	move(0);
+//}
+
+//void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
+//	translateRT(0,0);
+//	int ct=0;
+//	int index =0;
+//	float readings = 20.0;
+//	float readingsarr[20];
+//	for(int i=0;i<readings;i++){
+//		readingsarr[i] = 0;
+//	}
+//	int currentreading;
+//	float avg = 0 ;
+//	translateRT(speed,angle);
+//	int initcount=0;
+//	while(ct<10){
+//		currentreading = USreadDist(sonar);
+//		writeDebugStreamLine("read: %d avg: %f", currentreading, avg);
+//		if( abs(avg - currentreading) > threshold && initcount>20){
+//			ct++;
+//		}
+//		else{
+//			ct=0;
+//			avg = ((avg * readings) - readingsarr[index] + currentreading) / readings ;
+//			readingsarr[index] = currentreading;
+//			index = (index + 1)%((int)readings);
+//		}
+//		wait10Msec(1);
+//		initcount++;
+//	}
+//	move(0);
+//}
+
 void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 	translateRT(0,0);
 	int ct=0;
 	int index =0;
-	int readings = 10;
-	int readingsarr[10];
-	int currentreading;
-	int lastreading = USreadDist(sonar);
-	wait10Msec(1);
-	float avg = USreadDist(sonar) ;
-	int i;
-	for(i=0;i<readings;i++){
-		readingsarr[i] = avg;
+	float readings = 20.0;
+	float readingsarr[20];
+	for(int i=0;i<readings;i++){
+		readingsarr[i] = 0;
 	}
+	int currentreading;
+	float avg = 0 ;
 	translateRT(speed,angle);
-	int diff;
 	int initcount=0;
 	while(ct<10){
 		currentreading = USreadDist(sonar);
-		diff = currentreading;
-		if( abs(avg - diff) > threshold && initcount>10){
+		writeDebugStreamLine("read: %d avg: %f", currentreading, avg);
+		if( abs(avg - currentreading) > threshold && initcount>20){
 			ct++;
 		}
 		else{
 			ct=0;
-			avg = ((avg * readings) - readingsarr[index] + diff) / readings ;
-			readingsarr[index] = diff;
-			lastreading = currentreading;
-			index = (index + 1)%readings;
+			readingsarr[index] = currentreading;
+			float sum = 0;
+			for(int i=0; i<readings; i++) {
+				sum+=readingsarr[i];
+			}
+			avg = sum/readings;
+			index = (index + 1)%((int)readings);
 		}
 		wait10Msec(1);
 		initcount++;
 	}
 	move(0);
 }
-
 void findWall(tMUXSensor frontUltra, tMUXSensor rearUltra){
 	while(SensorValue[frontUltra] == 255 && SensorValue[rearUltra] == 255){
 		for(int i = 0; i<90; i++) {
@@ -126,8 +191,10 @@ void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSe
 
 		translateRT(speed,angle);
 		while(true){
-			if((USreadDist(sonar) > threshold) == see_now) {
+			int val = USreadDist(sonar);
+			if((val > threshold) == see_now) {
 				ct++;
+				playSound(soundBlip);
 			}
 			else {
 				ct = 0;
@@ -137,7 +204,7 @@ void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSe
 			}
 			wait1Msec(5);
 		}
-		translateRT(0, 0);
+		move(0);
 }
 
 void changeDetection(int speed, int angle, int jumpThreshold, tMUXSensor sonar) {
