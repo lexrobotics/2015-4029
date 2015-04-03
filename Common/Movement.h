@@ -3,7 +3,7 @@
 
 #include "PID.h"
 #include "Util.h"
-
+#include "IMU.h"
 /*
 Movement constants
 */
@@ -13,6 +13,12 @@ const float CIRCUMFERENCE = DIAMETER * PI;
 const float TURN_RADIUS = 12.73; //center of robot to turning circle in inches
 const float TURN_CIRCUMFERENCE = 2.0 * TURN_RADIUS * PI; //circumference of circle robot turns in
 const float TURN_SCALAR = 1.1; //because it's not a square
+
+int translateSpeed;
+int translateAngle;
+bool translating = false;
+float hugeBump = true;
+float initialHeading = 0;
 
 //Initialization
 task init();
@@ -47,6 +53,10 @@ int degreesToEncoder(int angle);
 
 //Gyro-based turning
 //void turnWithGyro(int speed, int heading);
+
+float normalizeHeading(float angle) {
+	return (angle + 360)%360;
+}
 
 task init() {
 	//startTask(releaseTube);
@@ -208,6 +218,29 @@ void moveDistancePID(int distance, float _Kp, float _Ki) {
 	move(0);
 }
 
+//void turnDistanceGyro(float angle){
+//	initialHeading = (initialHeading+ angle + 360) %360;
+//	const float threshold = 2;
+//	float error=initialHeading - normalizeHeading(getHeading()) ;
+//	while(abs(error) - initialHeading > threshold){
+//		error=initialHeading - normalizeHeading(getHeading()) ;
+//		writeDebugStreamLine("error: %f", error);
+//		turn((error/360.0) * 100);
+
+//	}
+//	turn(0);
+//	//while(abs(normalizeHeading(getHeading()) - initialHeading) > threshold){
+//	//	error = 360 - (initialHeading - normalizeHeading(getHeading()));
+//	//	error /= 10;
+//	//	float speed = (sgn(error)* -10) - error;
+//	//	turn(speed);
+//	//	writeDebugStreamLine("error: %f, speed: %f", error, speed);
+//	//}
+//	//turn(0);
+
+////}
+
+
 void turnDistance(int speed, int angle) {
 	int target = degreesToEncoder(angle);
 	resetEncoders();
@@ -283,6 +316,88 @@ void translateRT(int speed, int angle) {
 	motor[motorBackLeft] = pow2;
 }
 
+task translateWithHeading() {
+	const float threshold = 1;
+	const float hugeThreshold = 20;
+	float angleRad = (translateAngle + 45) * PI/180;
+	//float initialHeading = getHeading();
+	while(translating) {
+		float rot = 0;
+		float heading = getHeading();
+		float error = heading - initialHeading;
+
+		if(heading > threshold + initialHeading)
+			rot = error + 10;
+		else if(heading < threshold - initialHeading)
+			rot = error - 10;
+
+		if(abs(error) > hugeThreshold)
+			hugeBump = true;
+
+		float pow1 = translateSpeed * sin(angleRad) + rot;
+		float pow2 = translateSpeed * cos(angleRad) - rot;
+		float pow3 = translateSpeed * cos(angleRad) + rot;
+		float pow4 = translateSpeed * sin(angleRad) - rot;
+		motor[motorFrontLeft] = pow1;
+		motor[motorBackRight] = pow4;
+		motor[motorFrontRight] = pow2;
+		motor[motorBackLeft] = pow3;
+		wait1Msec(5);
+	}
+	move(0);
+	//correctToInitialHeading();
+}
+
+void translateRTHeading(int speed, int angle) {
+	translateSpeed = speed;
+	translateAngle = angle;
+	translating = true;
+	StartTask(translateWithHeading);
+}
+
+//void turnWithGyro(int speed, float target) {
+//	const float threshold = 0.5;
+//	speed = 130;
+//	while(heading < target - threshold || heading > target + threshold) {
+//		float heading = getHeading();
+//		speed =
+//		writeDebugStreamLine("heading: %f, speed: %d", heading, speed);
+//		turn(speed);
+//		wait1Msec(5);
+//	}
+//	turn(0);
+//	PlaySound(soundBeepBeep);
+//	while(true);
+//}
+
+void turnWithGyro(int speed, int angle) {
+	float target = initialHeading - angle;
+	const int threshold = 1;
+	while(abs(getHeading() - target) > threshold) {
+		if(getHeading() > target + threshold)
+			turn((getHeading()-target)/360.0 * 100.00 + 20);
+		if(getHeading() < target - threshold)
+			turn((getHeading()-target)/360.0 * 100.00 - 20);
+	}
+	turn(0);
+	initialHeading = target;
+	if(initialHeading > 180)
+		initialHeading-=360;
+	if(initialHeading < -180)
+		initialHeading+=360;
+}
+
+//void turnToHeading(int speed, float heading) {
+//	const float threshold = 0.5;
+//	while(heading < target - threshold || heading > target + threshold) {
+//		float heading = getHeading();
+//		writeDebugStreamLine("heading: %f, speed: %d", heading, speed);
+//		turn(speed );
+//		wait1Msec(5);
+//	}
+//	turn(0);
+//}
+
 void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorFrontLeft] = fwd + right;
 	motor[motorBackRight] = fwd + right;
@@ -306,6 +421,24 @@ void translateDistance(int speed, int angle, int distance) {
 		}
 
 	fullStop(); //stop
+}
+
+void translateDistanceHeading(int speed, int angle, int distance) {
+	int target;
+	if (angle % 90 == 0)
+		target = inchesToEncoder(distance);
+	else
+		target = inchesToEncoder(distance * min(abs(1/cos(PI * angle / 180.0)), abs(1/sin(PI * angle / 180.0))));
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)
+		&& abs(nMotorEncoder[motorFrontRight]) < abs(target)
+		&& abs(nMotorEncoder[motorBackLeft]) < abs(target)) {
+			translateRTHeading(speed, angle); //move at desired speed
+		}
+
+	translating = false;
 }
 
 /*

@@ -7,9 +7,45 @@
 #include "drivers/lego-ultrasound.h"
 #include "drivers/hitechnic-irseeker-v2.h"
 
-const tMUXSensor clampUS = msensor_S3_1;
-const tMUXSensor frontUS = msensor_S3_3;
+const tMUXSensor frontUS = msensor_S3_1;
+const tMUXSensor clampUS = msensor_S3_3;
 const tMUXSensor rearUS = msensor_S3_4;
+const tMUXSensor irSeeker = msensor_S3_2;
+void irTillSensePeak(int speed){
+	int acS1=0, acS2=0, acS3=0, acS4=0, acS5 = 0;
+	int lastreading = acS3;
+	int count = 0;
+	translateRTHeading(speed, 0);
+	while(acS3 < 20){
+			writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d // init", acS1, acS2, acS3, acS4, acS5);
+			if (!HTIRS2readAllACStrength(irSeeker, acS1, acS2, acS3, acS4, acS5 ))
+      	break;
+     wait1Msec(5);
+	}
+	while(count < 5) {
+
+
+		if (!HTIRS2readAllACStrength(irSeeker, acS1, acS2, acS3, acS4, acS5 ))
+        break; // I2C read error occurred
+
+    if(hugeBump) {
+    	count = 0;
+    	hugeBump = false;
+    }
+
+    if(acS3>lastreading && acS3 != 0 ){
+    	count=0;
+		}
+		else{
+			count++;
+		}
+		lastreading = acS3;
+   	writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d, ct: %d // actual", acS1, acS2, acS3, acS4, acS5, count);
+		wait1Msec(5);
+	}
+	translating = false;
+	PlaySound(soundFastUpwardTones);
+}
 
 //Turns the ultrasonic indicated to the angle indicated.
 //Asynchronous, so you have to wait a bit.
@@ -18,8 +54,8 @@ void turnUltra(int servo_index, int angle) {
 	int ZERO;
 	switch(servo_index) {
 		case 0:
-			ZERO = 157;
-			servo[frontTurret] = ZERO - scaled;
+			ZERO = 10;
+			servo[frontTurret] = ZERO + scaled;
 			break;
 		case 1:
 			ZERO = 95;
@@ -129,6 +165,42 @@ void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 	}
 	move(0);
 }
+
+void binaryTillSenseHeading(int speed, int angle, int threshold, tMUXSensor sonar){
+	translateRT(0,0);
+	int ct=0;
+	int index =0;
+	float readings = 20.0;
+	float readingsarr[20];
+	for(int i=0;i<readings;i++){
+		readingsarr[i] = 0;
+	}
+	int currentreading;
+	float avg = 0 ;
+	translateRTHeading(speed, angle);
+	int initcount=0;
+	while(ct<10){
+		currentreading = USreadDist(sonar);
+		writeDebugStreamLine("read: %d avg: %f", currentreading, avg);
+		if( abs(avg - currentreading) > threshold && initcount>20){
+			ct++;
+		}
+		else{
+			ct=0;
+			readingsarr[index] = currentreading;
+			float sum = 0;
+			for(int i=0; i<readings; i++) {
+				sum+=readingsarr[i];
+			}
+			avg = sum/readings;
+			index = (index + 1)%((int)readings);
+		}
+		wait10Msec(1);
+		initcount++;
+	}
+	translating = false;
+}
+
 void findWall(tMUXSensor frontUltra, tMUXSensor rearUltra){
 	while(SensorValue[frontUltra] == 255 && SensorValue[rearUltra] == 255){
 		for(int i = 0; i<90; i++) {
