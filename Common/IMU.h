@@ -12,6 +12,16 @@ float getHeading() {
 	return (360.0/255.0) * HTSPBreadIO(HTSPB, 255) - 180.0;
 }
 
+int getAccelX() {
+	// returns units in 1/8th Gs
+	return (HTSPBreadIO(HTSPB, 255) >> 4) - 8;
+}
+
+int getAccelY() {
+	// returns units in 1/8th Gs
+	return HTSPBreadIO(HTSPB, 255) & 15 - 8;
+}
+
 void resetArduino() {
 	HTSPBwriteStrobe(HTSPB, 0);
 	wait1Msec(1);
