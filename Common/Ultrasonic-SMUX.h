@@ -13,10 +13,10 @@ const tMUXSensor rearUS = msensor_S3_4;
 const tMUXSensor irSeeker = msensor_S3_2;
 void irTillSensePeak(int speed){
 	int acS1=0, acS2=0, acS3=0, acS4=0, acS5 = 0;
-	int lastreading = acS3;
+	int lastreading = acS2;
 	int count = 0;
 	translateRTHeading(speed, 0);
-	while(acS3 < 20){
+	while(acS2 < 20){
 			writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d // init", acS1, acS2, acS3, acS4, acS5);
 			if (!HTIRS2readAllACStrength(irSeeker, acS1, acS2, acS3, acS4, acS5 ))
       	break;
@@ -33,13 +33,13 @@ void irTillSensePeak(int speed){
     	hugeBump = false;
     }
 
-    if(acS3>lastreading && acS3 != 0 ){
+    if(acS2>lastreading && acS2 != 0 && acS2 != lastreading ){
     	count=0;
 		}
-		else{
+		else if(acS2 != lastreading){
 			count++;
 		}
-		lastreading = acS3;
+		lastreading = acS2;
    	writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d, ct: %d // actual", acS1, acS2, acS3, acS4, acS5, count);
 		wait1Msec(5);
 	}
@@ -54,7 +54,7 @@ void turnUltra(int servo_index, int angle) {
 	int ZERO;
 	switch(servo_index) {
 		case 0:
-			ZERO = 10;
+			ZERO = 127;
 			servo[frontTurret] = ZERO + scaled;
 			break;
 		case 1:

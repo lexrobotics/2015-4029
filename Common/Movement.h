@@ -120,7 +120,7 @@ void sound(int number, float pausetime){
 
 void deployClamp() {
 	servo[clamp1] = 0;
-	pause(1.5);
+	pause(1.9);
 	servo[clamp1] = 127;
 }
 
