@@ -19,7 +19,7 @@ int getAccelX() {
 
 int getAccelY() {
 	// returns units in 1/8th Gs
-	return HTSPBreadIO(HTSPB, 255) & 15 - 8;
+	return (HTSPBreadIO(HTSPB, 255) & 0b00001111) - 8;
 }
 
 void resetArduino() {

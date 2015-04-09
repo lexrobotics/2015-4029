@@ -28,6 +28,7 @@
 
 //#include "JoystickDriver.c"
 //#include "drivers/hitechnic-irseeker-v2.h"
+#include "JoystickDriver.c"
 #include "../../Common/Ultrasonic-SMUX.h"
 #include "../../Common/Touch.h"
 #include "../../Common/Movement.h"
@@ -53,27 +54,30 @@ void CenterPosition1() {
 	pause(0.2);
 	//repeatedTillSense(35, 0, false, 60, clampUS);
 	//binaryTillSense(35, 0, 20, clampUS);
-	irTillSensePeak(50);
-	//repeatedTillSense(35, 0, false, 40, clampUS);
-	binaryTillSense(35, 0, 20, clampUS);
-
-
-
-	//correctToInitialHeading();
+	irTillSensePeak(30);
+	playSound(soundLowBuzz);
+	//turnUltra(0,40);
+	//pause(0.2);
+	//if(USreadDist(frontUS)<30){
+	//	binaryTillSenseHeading(30, 0, 10, frontUS);
+	//}
+	turnWithGyro(30,0);
 }
 
 void CenterPosition2() {
 	//turnDistance(-100, 50);
-	turnWithGyro(50, -55);
+	turnWithGyro(70, -55);
 	translateDistanceHeading(100, 90, 4);
-
-	irTillSensePeak(50);
-			turnUltra(0,10);
-			pause(0.2);
-	//moveDistance(50, 5);
-	//turnUltra(0,0);
-	//repeatedTillSense(35, 0, false, 40, clampUS);
-	binaryTillSense(30,0,10,clampUS);
+	turnUltra(0, 0);
+	pause(0.2);
+	irTillSensePeak(30);
+		playSound(soundLowBuzz);
+	//turnUltra(0,20);
+	//pause(0.2);
+	//if(USreadDist(frontUS)<40){
+	//	binaryTillSenseHeading(20, 0, 10, frontUS);
+	//}
+	turnWithGyro(30,0);
 }
 
 void CenterPosition3() {
@@ -202,7 +206,9 @@ task main() {
 	resetArduino();
 	pause(5);
 	PlaySound(soundBeepBeep);
-	int position = CenterGoal();
+	//int position = CenterGoal();
+	translateXYAccel(0,0);
+	while(true);
 	//irTillSensePeak(30);
 	//CenterToKickstand(position);
 }

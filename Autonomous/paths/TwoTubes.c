@@ -28,25 +28,51 @@
 
 #include "../../Common/Ultrasonic-SMUX.h"
 //#include "../../Common/IMU.h"
-#include "SixtyCM.h"
 #include "../../Common/Movement.h"
 
-void SpeedyRamp() {
+void TwoTubes() {
 	StartTask(init); // Initialize all servos and stuff!
 
 	turnUltra(0, 0); // Initiate ultrasonics to point at wall
 	turnUltra(1, 0);
 
 	releaseTube(); // ready to receive tube
-
-	SixtyCM();
-
-	turnDistance(-50, 180);
-	translateDistance(200, 270, 12);
+translateDistanceHeading(-100, 0, 80);
 	pause(0.1);
+	moveDistancePID(-20);
+	pause(0.1);
+	//incrementalParallel(25, 2, rearUS, clampUS); //Parallel to the wall
+	//pause(0.2);
+	//tillSense(100, 270, 4, true, frontUS); //???
+	//incrementalParallel(25, 2, rearUS, frontUS); //Parallel again to be extra sure
+	//pause(0.2);
+
+	//moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
+	grabTube(); //Lower the tube grabber
+	tillSenseHeading(100, 90, true, 70, rearUS);
+	turnWithGyro(-100, 180);
 	releaseTube();
+	moveDistancePID(8);
+	turnWithGyro(-100, 180);
+
+	tillSenseHeading(-100, 90, false, 20, rearUS);
+	moveDistancePID(-24);
+	grabTube();
+	moveDistance(100, 15);
+	tillSenseHeading(100, 90, true, 65, rearUS);
 	pause(0.2);
-	moveDistance(100, 10);
+	turnUltra(0, 90);
+	pause(0.3);
+	moveDistance(100, 24);
+	tillSenseHeading(100, 0, false, 30, frontUS);
+	pause(0.2);
+	tillSenseHeading(100, 90, true, 55, rearUS);
+	moveDistance(-50, 5);
+	turnWithGyro(-100, 140);
+	releaseTube();
+	//moveDistance(50, 4);
+	//moveDistancePID(-24);
+	//grabTube();
 }
 
 #ifndef AUTO_COMPETITION
@@ -54,6 +80,6 @@ task main() {
 	resetArduino();
 	pause(5);
 	PlaySound(soundBeepBeep);
-	SpeedyRamp();
+	TwoTubes();
 }
 #endif

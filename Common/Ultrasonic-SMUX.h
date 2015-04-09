@@ -13,10 +13,12 @@ const tMUXSensor rearUS = msensor_S3_4;
 const tMUXSensor irSeeker = msensor_S3_2;
 void irTillSensePeak(int speed){
 	int acS1=0, acS2=0, acS3=0, acS4=0, acS5 = 0;
-	int lastreading = acS2;
+	int irVals[5];
+
+	int lastreading = acs3;
 	int count = 0;
 	translateRTHeading(speed, 0);
-	while(acS2 < 20){
+	while(acS3 < 20){
 			writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d // init", acS1, acS2, acS3, acS4, acS5);
 			if (!HTIRS2readAllACStrength(irSeeker, acS1, acS2, acS3, acS4, acS5 ))
       	break;
@@ -33,13 +35,13 @@ void irTillSensePeak(int speed){
     	hugeBump = false;
     }
 
-    if(acS2>lastreading && acS2 != 0 && acS2 != lastreading ){
+    if(acS3>lastreading && acS3 != 0 && acS3 != lastreading ){
     	count=0;
 		}
-		else if(acS2 != lastreading){
+		else if(acS3 != lastreading && USreadDist(frontUS) != 255){
 			count++;
 		}
-		lastreading = acS2;
+		lastreading = acS3;
    	writeDebugStreamLine("1: %d, 2: %d, 3: %d, 4: %d, 5: %d, ct: %d // actual", acS1, acS2, acS3, acS4, acS5, count);
 		wait1Msec(5);
 	}
@@ -252,7 +254,22 @@ void tillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor son
 		while(((USreadDist(sonar)<threshold)==see_now) || ((USreadDist(sonar) == 255) && (!see_now))){
 						wait10Msec(1);
 		}
+		translating = false;
 			translateRT(0, 0);
+}
+
+void tillSenseHeading(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
+		//see_now describes whether the ultrasonic is currently within the threshold.
+		//True is that it is within the threshold.
+		//the robot will move in the specified way until the robot's ultrasonic no longer agrees with see_now.
+
+		translateRTHeading(speed,angle);
+		pause(0.1);
+		while(((USreadDist(sonar)<threshold)==see_now) || ((USreadDist(sonar) == 255) && (!see_now))){
+						wait10Msec(1);
+		}
+		translating = false;
+			//translateRT(0, 0);
 }
 
 void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){

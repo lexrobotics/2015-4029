@@ -100,7 +100,7 @@ task raiseLift() {
 
 void releaseTube() {
 	servo[grabber] = 255; //.....................???
-	pause(1.2);
+	pause(1);
 	servo[grabber] = 127;
 }
 
@@ -120,7 +120,7 @@ void sound(int number, float pausetime){
 
 void deployClamp() {
 	servo[clamp1] = 0;
-	pause(1.9);
+	pause(2.2);
 	servo[clamp1] = 127;
 }
 
@@ -320,8 +320,32 @@ task translateWithHeading() {
 	const float threshold = 1;
 	const float hugeThreshold = 20;
 	float angleRad = (translateAngle + 45) * PI/180;
+	float xaccel = 0;
+	float yaccel = 0;
+	float xaccellast = 0;
+	float yaccellast = 0;
+	float xforcefactor = 0;
+	float yforcefactor = 0;
 	//float initialHeading = getHeading();
 	while(translating) {
+		//xaccel = getAccelX();
+		//yaccel = getAccelY();
+		//if(abs(xaccel - xaccellast) > 1){
+		//	xforcefactor = (xaccel -xaccellast) *10;
+		//}
+		//else{
+		//	xforcefactor=0;
+		//	xaccellast = xaccel;
+		//}
+		//if(abs(yaccel - yaccellast) > 1){
+		//	yforcefactor = (yaccel -yaccellast) *10;
+		//}
+		//else{
+		//	yforcefactor=0;
+		//	yaccellast = yaccel;
+		//}
+		//xforcefactor=100;
+		//yforcefactor=0;
 		float rot = 0;
 		float heading = getHeading();
 		float error = heading - initialHeading;
@@ -333,6 +357,16 @@ task translateWithHeading() {
 
 		if(abs(error) > hugeThreshold)
 			hugeBump = true;
+		//float pushAngle = 0;
+		//if(xforcefactor == 0) {
+		//	pushAngle = (sgn(yforcefactor) == 1 ? PI : 0);
+		//}
+		//else if(yforcefactor == 0) {
+		//	pushAngle = -PI/2 * sgn(xforcefactor);
+		//}
+		//else {
+		//	pushAngle = atan2(yforcefactor, xforcefactor);
+		//}
 
 		float pow1 = translateSpeed * sin(angleRad) + rot;
 		float pow2 = translateSpeed * cos(angleRad) - rot;
@@ -372,6 +406,11 @@ void translateRTHeading(int speed, int angle) {
 
 void turnWithGyro(int speed, int angle) {
 	float target = initialHeading - angle;
+	if(target > 180)
+		target-=360;
+	if(target < -180)
+		target+=360;
+
 	const int threshold = 1;
 	while(abs(getHeading() - target) > threshold) {
 		if(getHeading() > target + threshold)
@@ -381,10 +420,7 @@ void turnWithGyro(int speed, int angle) {
 	}
 	turn(0);
 	initialHeading = target;
-	if(initialHeading > 180)
-		initialHeading-=360;
-	if(initialHeading < -180)
-		initialHeading+=360;
+
 }
 
 //void turnToHeading(int speed, float heading) {
@@ -403,6 +439,42 @@ void translateXY(int fwd, int right) {//It's a lot easier to use RT.
 	motor[motorBackRight] = fwd + right;
 	motor[motorFrontRight] = fwd - right;
 	motor[motorBackLeft] = fwd - right;
+}
+
+void translateXYAccel(int fwd, int right) {
+	bool translating = true;
+	float xaccel = 0;
+	float yaccel = 0;
+	float xaccellast = 0;
+	float yaccellast = 0;
+	float xforcefactor = 0;
+	float yforcefactor = 0;
+
+	while(translating) {
+		xaccel = getAccelX();
+		yaccel = getAccelY();
+		if(abs(xaccel - xaccellast) >= 1){
+			xforcefactor = (xaccel -xaccellast) *50;
+		}
+		else{
+			xforcefactor=0;
+			xaccellast = xaccel;
+		}
+		if(abs(yaccel - yaccellast) >= 1){
+			yforcefactor = (yaccel -yaccellast) *50;
+		}
+		else{
+			yforcefactor=0;
+			yaccellast = yaccel;
+		}
+
+		motor[motorFrontLeft] = (fwd - yforcefactor) + (right - xforcefactor);
+		motor[motorBackRight] = (fwd - yforcefactor) + (right - xforcefactor);
+		motor[motorFrontRight] = (fwd - yforcefactor) - (right - xforcefactor);
+		motor[motorBackLeft] = (fwd - yforcefactor) - (right - xforcefactor);
+		wait10Msec(10);
+	}
+	move(0);
 }
 
 void translateDistance(int speed, int angle, int distance) {
