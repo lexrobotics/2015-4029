@@ -67,9 +67,7 @@ bool lifted = false;
 bool servosLifted = false;
 
 task raiseServos() {
-	servo[centerLift] = 255;
-	pause(4);
-	servo[centerLift] = 127;
+	servo[egLift] = 0;
 	servosLifted = true;
 }
 
@@ -82,19 +80,34 @@ task raiseLift() {
 	nMotorEncoder[lift1] = 0;
 	nMotorEncoder[lift2] = 0;
 	pause(0.3);
-
-	const int ENCODER_TARGET = 8 * 1100;
+	int prevEncoder1 = -20;
+	int prevEncoder2 = -20;
+	const int ENCODER_TARGET = 8.5 * 1100;
+	const int DIFF_THRESH = 10;
 
 	while(abs(nMotorEncoder[lift1]) < ENCODER_TARGET ||
 		abs(nMotorEncoder[lift2]) < ENCODER_TARGET) {
 		motor[lift1] = -100;
 		motor[lift2] = -100;
 	}
+	//int diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
+	//int diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
+
+	//while(diff1 > DIFF_THRESH || diff2 > DIFF_THRESH) {
+	//	int diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
+	//	int diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
+	//	motor[lift1] = -100;
+	//	motor[lift2] = -100;
+	//	prevEncoder1 = nMotorEncoder[lift1];
+	//	prevEncoder2 = nMotorEncoder[lift2];
+	//	wait1Msec(20);
+	//}
+
 
 	motor[lift1] = 0;
 	motor[lift2] = 0;
 
-	while(!servosLifted);
+	//while(!servosLifted);
 	lifted = true;
 }
 
