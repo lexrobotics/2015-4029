@@ -60,7 +60,9 @@ float normalizeHeading(float angle) {
 
 task init() {
 	//startTask(releaseTube);
+	servo[egRelease] = 127;
 	servo[kickstand] = 255; // kickstand hook
+	servo[egLift] = 190;
 }
 
 bool lifted = false;
@@ -69,6 +71,22 @@ bool servosLifted = false;
 task raiseServos() {
 	servo[egLift] = 0;
 	servosLifted = true;
+}
+
+task raiseGrabber() {
+	servo[grabberLift1] = 255;
+	servo[grabberLift2] = 0;
+	pause(0.5);
+	servo[grabberLift1] = 127;
+	servo[grabberLift2] = 127;
+}
+
+task lowerGrabber() {
+	servo[grabberLift1] = 0;
+	servo[grabberLift2] = 255;
+	pause(1.2);
+	servo[grabberLift1] = 127;
+	servo[grabberLift2] = 127;
 }
 
 task raiseLift() {
@@ -110,6 +128,10 @@ task raiseLift() {
 
 	//while(!servosLifted);
 	lifted = true;
+}
+
+task releaseTubeTask() {
+	releaseTube();
 }
 
 void releaseTube() {

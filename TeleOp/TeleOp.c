@@ -174,7 +174,7 @@ task arm() {
 			servo[egLift] = 0;
 		}
 		else {
-			servo[egLift] = 190;
+			servo[egLift] = 200;
 		}
 
 		if(joy2Btn(5)) {
