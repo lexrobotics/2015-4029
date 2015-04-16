@@ -38,6 +38,7 @@ bool everPressed = false;
 
 void scoreBall() {
 	servo[egLift] = 0;
+	servo[ballRamp] = 60;
 	pause(0.4);
 	servo[egRelease] = 255;
 	pause(2);
@@ -85,16 +86,6 @@ void CenterPosition3() {
 	turnUltra(0, 0);
 	turnUltra(1, 0);
 	turnWithGyro(50, -90);
-	//pause(0.2);
-	//incrementalParallel(25, 2, rearUS, frontUS);
-	//pause(0.2);
-	//translateDistance(100, 90, 16);
-	//pause(0.2);
-		//repeatedTillSense(40,0,false, 40, clampUS);
-	////binaryTillSense(40,0, 30, clampUS);
-	//pause(0.5);
-	//moveDistanceRamp(-50, 3);
-	//pause(0.2);
 }
 
 void CenterToKickstand(int position) {
@@ -102,18 +93,18 @@ void CenterToKickstand(int position) {
 	pause(0.2);
 	moveDistance(-100, 25);
 	pause(0.2);
-	turnDistance(50,110);
+	turnWithGyro(100, 90);
 
 	turnUltra(0,0);
 	pause(0.2);
-	repeatedTillSense(50, 0, false, 90, frontUS);
+	repeatedTillSense(50, 0, false, 90, rearUS);
 	pause(0.2);
 	if(position == 2)
-		tillSense(200, 270, false, 27, frontUS);
+		tillSense(200, 270, false, 27, rearUS);
 	else if(position == 1)
-		tillSense(200, 270, false, 22, frontUS);
+		tillSense(200, 270, false, 22, rearUS);
 	else if(position == 3);
-		tillSense(200, 270, false, 25, frontUS);
+		tillSense(200, 270, false, 25, rearUS);
 
 	pause(0.2);
 	deployKnocker();
@@ -159,8 +150,8 @@ int CenterGoal() {
 			return -1;
 	}
 
-	while(!lifted);
 	deployClamp();
+	while(!lifted);
 
 	readAllSwitches();
 	//scoring commences
@@ -196,7 +187,7 @@ int CenterGoal() {
 	//		translateRT(100, 80);
 	//	}
 	//}
-//	return position;
+	return position;
 }
 
 #ifndef AUTO_COMPETITION
@@ -204,12 +195,11 @@ task main() {
 	servo[clamp2] = 127;
 	servo[clamp1] = 127;
 	servo[egRelease] = 127;
-
+	servo[egLift] = 127;
 	resetArduino();
 	pause(5);
 	PlaySound(soundBeepBeep);
 	int position = CenterGoal();
-	//irTillSensePeak(30);
-	//CenterToKickstand(position);
+	CenterToKickstand(position);
 }
 #endif

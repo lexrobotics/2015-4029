@@ -82,7 +82,7 @@ task raiseLift() {
 	pause(0.3);
 	int prevEncoder1 = -20;
 	int prevEncoder2 = -20;
-	const int ENCODER_TARGET = 8.5 * 1100;
+	const int ENCODER_TARGET = 8 * 1100;
 	const int DIFF_THRESH = 10;
 
 	while(abs(nMotorEncoder[lift1]) < ENCODER_TARGET ||
@@ -90,18 +90,19 @@ task raiseLift() {
 		motor[lift1] = -100;
 		motor[lift2] = -100;
 	}
-	//int diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
-	//int diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
+	int diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
+	int diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
 
-	//while(diff1 > DIFF_THRESH || diff2 > DIFF_THRESH) {
-	//	int diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
-	//	int diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
-	//	motor[lift1] = -100;
-	//	motor[lift2] = -100;
-	//	prevEncoder1 = nMotorEncoder[lift1];
-	//	prevEncoder2 = nMotorEncoder[lift2];
-	//	wait1Msec(20);
-	//}
+	while(diff1 > DIFF_THRESH || diff2 > DIFF_THRESH) {
+		diff1 = abs(nMotorEncoder[lift1] - prevEncoder1);
+		diff2 = abs(nMotorEncoder[lift2] - prevEncoder2);
+		motor[lift1] = -100;
+		motor[lift2] = -100;
+		prevEncoder1 = nMotorEncoder[lift1];
+		prevEncoder2 = nMotorEncoder[lift2];
+		nxtDisplayCenteredTextLine(2, "%d %d", nMotorEncoder[lift1], nMotorEncoder[lift2]);
+		wait1Msec(100);
+	}
 
 
 	motor[lift1] = 0;
