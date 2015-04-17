@@ -30,8 +30,8 @@
 TeleOp.c
 Implementing Mecanum drive capabilities.
 
-LastUpdatedOn: 1/12
-LastUpdatedBy: Clive, David
+LastUpdatedOn: 4/16
+LastUpdatedBy: Noah, Garrett, and Anthony
 */
 
 /*
@@ -105,10 +105,10 @@ task arm() {
 		}
 
 		if(joystick.joy2_TopHat == 0 && !egDeployed) {
-			motor[conveyor] = 70;
+			motor[conveyor] = 30;
 		}
 		else if(joystick.joy2_TopHat == 4 && !egDeployed) {
-			motor[conveyor] = -70;
+			motor[conveyor] = -30;
 		}
 		else {
 			motor[conveyor] = 0;
@@ -160,15 +160,15 @@ task arm() {
 			servo[grabberLift2] = 127;
 		}
 
-		if(joy2Btn(2)) {
-			servo[clamp1] = 255;
-		}
-		else if(joy2Btn(4)) {
-			servo[clamp1] = 0;
-		}
-		else {
-			servo[clamp1] = 127;
-		}
+		//if(joy2Btn(2)) {
+		//	servo[clamp1] = 255;
+		//}
+		//else if(joy2Btn(4)) {
+		//	servo[clamp1] = 0;
+		//}
+		//else {
+		//	servo[clamp1] = 127;
+		//}
 
 		if(egDeployed) {
 			servo[egLift] = 0;
@@ -177,24 +177,49 @@ task arm() {
 			servo[egLift] = 200;
 		}
 
-		if(joy2Btn(5)) {
-			motor[lift1] = 100;
-		}
-		else if(joy2Btn(7)) {
-			motor[lift1] = -100;
+		if(!joy2Btn(2)) {
+			servo[clamp1] = 127;
+			servo[clamp2] = 127;
+			if(joy2Btn(5)) {
+				motor[lift1] = 100;
+			}
+			else if(joy2Btn(7)) {
+				motor[lift1] = -100;
+			}
+			else {
+				motor[lift1] = 0;
+			}
+			if(joy2Btn(6)) {
+				motor[lift2] = 100;
+			}
+			else if(joy2Btn(8)) {
+				motor[lift2] = -100;
+			}
+			else {
+				motor[lift2] = 0;
+			}
 		}
 		else {
 			motor[lift1] = 0;
-		}
-
-		if(joy2Btn(6)) {
-			motor[lift2] = 100;
-		}
-		else if(joy2Btn(8)) {
-			motor[lift2] = -100;
-		}
-		else {
 			motor[lift2] = 0;
+			if(joy2Btn(5)) {
+				servo[clamp2] = 0;
+			}
+			else if(joy2Btn(7)) {
+				servo[clamp2] = 255;
+			}
+			else {
+				servo[clamp2] = 127;
+			}
+			if(joy2Btn(6)) {
+				servo[clamp1] = 255;
+			}
+			else if(joy2Btn(8)) {
+				servo[clamp1] = 0;
+			}
+			else {
+				servo[clamp1] = 127;
+			}
 		}
 
 		if(joy2Btn(3)) {
