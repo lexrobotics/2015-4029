@@ -136,7 +136,7 @@ void turnUltra(int servo_index, int angle) {
 void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 	translateRT(0,0);
 	int ct=0;
-	int index =0;
+	int ind =0;
 	float readings = 20.0;
 	float readingsarr[20];
 	for(int i=0;i<readings;i++){
@@ -154,13 +154,13 @@ void binaryTillSense(int speed, int angle, int threshold, tMUXSensor sonar){
 		}
 		else{
 			ct=0;
-			readingsarr[index] = currentreading;
+			readingsarr[ind] = currentreading;
 			float sum = 0;
 			for(int i=0; i<readings; i++) {
 				sum+=readingsarr[i];
 			}
 			avg = sum/readings;
-			index = (index + 1)%((int)readings);
+			ind = (ind + 1)%((int)readings);
 		}
 		wait10Msec(1);
 		initcount++;

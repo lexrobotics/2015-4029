@@ -44,13 +44,13 @@ void RampKickstand() {
 
 	turnUltra(0, 0);
 	pause(0.3);
-	tillSense(200, 90, true, 68, frontUS);
+	tillSense(200, 90, true, 90, rearUS);
 	pause(0.1);
-	turnDistance(-50, 120);
+	turnWithGyro(-50, 120);
 	pause(0.1);
 	releaseTube();
 	pause(0.2);
-	turnDistance(-50, 60);
+	turnWithGyro(-50, 60);
 	grabTube();
 	move(-50);
 	pause(1);

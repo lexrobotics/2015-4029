@@ -28,7 +28,7 @@
 
 #include "JoystickDriver.c"
 #include "drivers/hitechnic-irseeker-v2.h"
-#include "../../Common/Movement.h"
+#include "../Common/Movement.h"
 #define robotLength 12.0
 
 task main()

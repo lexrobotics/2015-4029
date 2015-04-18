@@ -38,6 +38,7 @@ void TwoTubes() {
 	StartTask(releaseTubeTask); // ready to receive tube
 	//moveDisqtance(-100, 80);
 	translateDistanceHeading(-100, 0, 80);
+	initialHeading = 0;
 	StartTask(lowerGrabber);
 	pause(0.1);
 	moveDistancePID(-20);
@@ -59,7 +60,7 @@ void TwoTubes() {
 	tillSenseHeading(-100, 90, false, 20, rearUS);
 	turnUltra(1, 90);
 	pause(0.3);
-	tillSenseHeading(-100, 0, false, 50, clampUS);
+
 	moveDistancePID(-24);
 	grabTube();
 	moveDistance(100, 15);
@@ -67,17 +68,14 @@ void TwoTubes() {
 	pause(0.2);
 	turnUltra(0, 85);
 	pause(0.3);
-	moveDistance(100, 24);
-	heading = 5;
+	initialHeading=-10;
+	translateDistance(100, 0, 24);
+
 	tillSenseHeading(100, 0, false, 30, frontUS);
 	pause(0.2);
 	tillSenseHeading(100, 90, true, 60, rearUS);
 	moveDistance(-50, 5);
 	turnWithGyro(-100, 140);
-	releaseTube();
-	//moveDistance(50, 4);
-	//moveDistancePID(-24);
-	//grabTube();
 }
 
 #ifndef AUTO_COMPETITION

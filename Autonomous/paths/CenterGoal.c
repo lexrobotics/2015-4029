@@ -91,7 +91,7 @@ void CenterPosition3() {
 void CenterToKickstand(int position) {
 	translateDistance(100,270,10);
 	pause(0.2);
-	moveDistance(-100, 25);
+	moveDistance(-100, 30);
 	pause(0.2);
 	turnWithGyro(100, 90);
 
@@ -102,7 +102,7 @@ void CenterToKickstand(int position) {
 	if(position == 2)
 		tillSense(200, 270, false, 27, rearUS);
 	else if(position == 1)
-		tillSense(200, 270, false, 22, rearUS);
+		tillSense(200, 270, false, 27, rearUS);
 	else if(position == 3);
 		tillSense(200, 270, false, 25, rearUS);
 

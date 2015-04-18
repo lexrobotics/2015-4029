@@ -28,14 +28,15 @@
 #ifndef SIXTYCM_C
 
 void SixtyCM() {
-
-	moveDistancePID(-70); // move down the ramp
-
+	StartTask(releaseTubeTask); // ready to receive tube
+	//moveDisqtance(-100, 80);
+	translateDistanceHeading(-100, 0, 60);
+	StartTask(lowerGrabber);
 	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS); //Parallel to the wall
-	pause(0.2);
-	tillSense(100, 270, 4, true, frontUS); //???
-	incrementalParallel(25, 2, rearUS, frontUS); //Parallel again to be extra sure
+	moveDistancePID(-20);
+	pause(0.1);
+
+	tillSenseHeading(100, 270, 4, true, rearUS); //???
 	pause(0.2);
 
 	moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
@@ -48,11 +49,10 @@ void SixtyCM() {
 
 	turnUltra(0, 0);
 	pause(0.3);
-	tillSense(200, 90, true, 65, frontUS);
+	tillSenseHeading(200, 90, true, 70, rearUS);
 	pause(0.1);
-	incrementalParallel(25, 2, rearUS, frontUS);
-	pause(0.2);
 	turnUltra(0, 90);
 	pause(0.3);
-	tillSense(100, 0, false, 50, frontUS);
+	initialHeading = -20;
+	tillSenseHeading(100, 0, false, 50, frontUS);
 }
