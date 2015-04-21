@@ -31,6 +31,7 @@
 #include "JoystickDriver.c"
 #include "paths/RampKickstand.c"
 #include "paths/Kickstand.c"
+#include "paths/TwoTubes.c"
 #include "paths/SpeedyRamp.c"
 #include "paths/CenterGoal.c"
 #include "paths/Dummy.c"
@@ -63,11 +64,12 @@ task main() {
 	Options PATHS;
 	PATHS.strings[0] = "Center";
 	PATHS.strings[1] = "KickCenter";
-	PATHS.strings[2] = "Ramp";
-	PATHS.strings[3] = "KickRamp";
-	PATHS.strings[4] = "Kickstand";
-	PATHS.strings[5] = "None";
-	PATHS.len = 6;
+	PATHS.strings[2] = "TwoTubes";
+	PATHS.strings[3] = "Ramp";
+	PATHS.strings[4] = "KickRamp";
+	PATHS.strings[5] = "Kickstand";
+	PATHS.strings[6] = "None";
+	PATHS.len = 7;
 
 	const int MENU_ENTRIES = 4;
 	int delay = 0;
@@ -90,6 +92,17 @@ task main() {
 		else if(step == 2) {
 			nxtDisplayCenteredTextLine(2, "%d", USreadDist(frontUS));
 		}
+		else if(step == 3) {
+			ClearTimer(T4);
+			resetArduino();
+			while(time1[T4] < 5000) {
+					writeDebugStreamLine("%d", time1[T4]);
+					int time = round(5 - (time1[T4]/1000));
+					nxtDisplayCenteredTextLine(2, "Reset IMU: %d sec left", time);
+					wait10Msec(1);
+			}
+			step++;
+		}
 		else {
 			finalCheck();
 		}
@@ -105,14 +118,18 @@ task main() {
 		CenterToKickstand(position);
 	}
 	else if(path == 2) {
-		SpeedyRamp();
+		TwoTubes();
 		StartTask(raiseLift);
 	}
 	else if(path == 3) {
-		RampKickstand();
+		SpeedyRamp();
 		StartTask(raiseLift);
 	}
 	else if(path == 4) {
+		RampKickstand();
+		StartTask(raiseLift);
+	}
+	else if(path == 5) {
 		Kickstand();
 		StartTask(raiseLift);
 	}

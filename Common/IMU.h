@@ -3,13 +3,20 @@
 
 #include "drivers/hitechnic-superpro.h"
 
+float heading_offset = 0;
+
 void initIMU() {
 	HTSPBwriteStrobe(HTSPB, 1);
 	HTSPBsetupIO(HTSPB, 0);
 }
 
 float getHeading() {
-	return (360.0/255.0) * HTSPBreadIO(HTSPB, 255) - 180.0;
+	float h = (360.0/255.0) * HTSPBreadIO(HTSPB, 255) - 180.0;
+	return h - heading_offset;
+}
+
+void resetIMUOffset() {
+	heading_offset = getHeading();
 }
 
 int getAccelX() {

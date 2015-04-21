@@ -13,4 +13,9 @@ int min(int a, int b)
 		return b;
 }
 
+//int round(float f) {
+//  if(f>0) return (int)(f + 0.5);
+//	else    return (int)(f - 0.5);
+//}
+
 #endif /* UTIL_H */
