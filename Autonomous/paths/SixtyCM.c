@@ -54,5 +54,5 @@ void SixtyCM() {
 	turnUltra(0, 90);
 	pause(0.3);
 	initialHeading = -20;
-	tillSenseHeading(100, 0, false, 50, frontUS);
+	tillSenseHeading(200, 0, false, 50, frontUS);
 }

@@ -38,7 +38,7 @@ void irTillSensePeak(int speed){
     if(acS3>lastreading && acS3 != 0 && acS3 != lastreading ){
     	count=0;
 		}
-		else if(acS3 != lastreading && USreadDist(frontUS) != 255){
+		else if(acS3 != lastreading && USreadDist(frontUS) != 100){
 			count++;
 		}
 		lastreading = acS3;

@@ -40,7 +40,7 @@ void SpeedyRamp() {
 	releaseTube(); // ready to receive tube
 
 	SixtyCM();
-
+	initialHeading = -10;
 	translateDistance(200, 90, 40);
 	turnWithGyro(-50, 180);
 	pause(0.1);

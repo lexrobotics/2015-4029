@@ -51,20 +51,20 @@ void TwoTubes() {
 
 	//moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
 	grabTube(); //Lower the tube grabber
-	tillSenseHeading(100, 90, true, 75, rearUS);
+	tillSenseHeading(120, 90, true, 70, rearUS);
 	turnWithGyro(-100, 180);
 	releaseTube();
-	moveDistancePID(8);
+	moveDistancePID(10);
 	turnWithGyro(-100, 180);
 
-	tillSenseHeading(-100, 90, false, 20, rearUS);
+	tillSenseHeading(-120, 90, false, 20, rearUS);
 	turnUltra(1, 90);
 	pause(0.3);
 
-	moveDistancePID(-24);
+	moveDistancePID(-30);
 	grabTube();
-	moveDistance(100, 15);
-	tillSenseHeading(100, 90, true, 70, rearUS);
+	moveDistance(100, 21);
+	tillSenseHeading(120, 90, true, 65, rearUS);
 	pause(0.2);
 	turnUltra(0, 85);
 	pause(0.3);
@@ -73,9 +73,11 @@ void TwoTubes() {
 
 	tillSenseHeading(100, 0, false, 30, frontUS);
 	pause(0.2);
-	tillSenseHeading(100, 90, true, 60, rearUS);
+	tillSenseHeading(120, 90, true, 60, rearUS);
 	moveDistance(-50, 5);
 	turnWithGyro(-100, 140);
+	releaseTube();
+	moveDistance(100, 15);
 }
 
 #ifndef AUTO_COMPETITION

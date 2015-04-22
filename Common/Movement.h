@@ -450,9 +450,9 @@ void turnWithGyro(int speed, int angle) {
 	const int threshold = 1;
 	while(abs(getHeading() - target) > threshold) {
 		if(getHeading() > target + threshold)
-			turn((getHeading()-target)/360.0 * 100.00 + 20);
+			turn((getHeading()-target)/360.0 * 100.00 + 35);
 		if(getHeading() < target - threshold)
-			turn((getHeading()-target)/360.0 * 100.00 - 20);
+			turn((getHeading()-target)/360.0 * 100.00 - 35);
 	}
 	turn(0);
 	initialHeading = target;

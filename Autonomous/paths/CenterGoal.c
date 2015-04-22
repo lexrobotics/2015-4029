@@ -40,14 +40,15 @@ void scoreBall() {
 	servo[egLift] = 0;
 	servo[ballRamp] = 60;
 	pause(0.4);
-	servo[egRelease] = 255;
+	servo[egRelease] = 0;
 	pause(2);
+	servo[egRelease] = 127;
 }
 
 void CenterPosition1() {
 	turnUltra(0, 90);
 	moveDistanceRamp(50, 12);
-	binaryTillSenseHeading(80, 270, 30, frontUS);
+	binaryTillSenseHeading(120, 270, 30, frontUS);
 	PlaySound(soundLowBuzzShort);
 	translateDistance(200, 270, 7);
 	writeDebugStream("DONE WITH FIRST");
@@ -199,6 +200,7 @@ task main() {
 	resetArduino();
 	pause(5);
 	PlaySound(soundBeepBeep);
+
 	int position = CenterGoal();
 	CenterToKickstand(position);
 }
