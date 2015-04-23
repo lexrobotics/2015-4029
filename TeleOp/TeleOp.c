@@ -104,14 +104,27 @@ task arm() {
 			egDeployed = false;
 		}
 
-		if(joystick.joy2_TopHat == 0 && !egDeployed) {
-			motor[conveyor] = 30;
-		}
-		else if(joystick.joy2_TopHat == 4 && !egDeployed) {
-			motor[conveyor] = -30;
+		if(joy2Btn(4)) {
+			if(joystick.joy2_TopHat == 0 && !egDeployed) {
+				motor[conveyor] = 100;
+			}
+			else if(joystick.joy2_TopHat == 4 && !egDeployed) {
+				motor[conveyor] = -100;
+			}
+			else {
+				motor[conveyor] = 0;
+			}
 		}
 		else {
-			motor[conveyor] = 0;
+			if(joystick.joy2_TopHat == 0 && !egDeployed) {
+				motor[conveyor] = 30;
+			}
+			else if(joystick.joy2_TopHat == 4 && !egDeployed) {
+				motor[conveyor] = -30;
+			}
+			else {
+				motor[conveyor] = 0;
+			}
 		}
 
 		if(joy2Btn(1)) {
@@ -174,7 +187,7 @@ task arm() {
 			servo[egLift] = 0;
 		}
 		else {
-			servo[egLift] = 200;
+			servo[egLift] = 225;
 		}
 
 		if(!joy2Btn(2)) {

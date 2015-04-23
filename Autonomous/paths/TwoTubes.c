@@ -55,7 +55,7 @@ void TwoTubes() {
 	grabTube(); //Lower the tube grabber
 	while(USreadDist(rearUS) == 255) {
 		translateRTHeading(120, 90);
-		pause(0.01);
+		pause(0.1);
 	}
 	translating = false;
 	repeatedTillSenseHeading(120, 90, true, 65, clampUS);
@@ -71,7 +71,7 @@ void TwoTubes() {
 	moveDistance(100, 16);
 	while(USreadDist(rearUS) == 255) {
 		translateRTHeading(120, 90);
-		pause(0.01);
+		pause(0.1);
 	}
 	translating = false;
 	pause(0.1);
