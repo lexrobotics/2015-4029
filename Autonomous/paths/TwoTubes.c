@@ -51,20 +51,20 @@ void TwoTubes() {
 
 	//moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
 	grabTube(); //Lower the tube grabber
-	tillSenseHeading(120, 90, true, 70, rearUS);
+	repeatedTillSenseHeading(120, 90, true, 70, rearUS);
 	turnWithGyro(-100, 180);
 	releaseTube();
 	moveDistancePID(10);
 	turnWithGyro(-100, 180);
 
-	tillSenseHeading(-120, 90, false, 20, rearUS);
+	repeatedTillSenseHeading(-120, 90, false, 20, rearUS);
 	turnUltra(1, 90);
 	pause(0.3);
 
-	moveDistancePID(-30);
+	translateDistanceHeading(-100,0,20);
 	grabTube();
 	moveDistance(100, 21);
-	tillSenseHeading(120, 90, true, 65, rearUS);
+	repeatedTillSenseHeading(120, 90, true, 65, rearUS);
 	pause(0.2);
 	turnUltra(0, 85);
 	pause(0.3);

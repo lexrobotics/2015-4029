@@ -272,6 +272,30 @@ void tillSenseHeading(int speed, int angle, bool see_now, int threshold, tMUXSen
 			//translateRT(0, 0);
 }
 
+
+void repeatedTillSenseHeading(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
+		//see_now describes whether the ultrasonic is currently within the threshold.
+		//True is that it is within the threshold.
+		//the robot will move in the specified way until the robot's ultrasonic no longer agrees with see_now.
+		int ct = 0;
+		translateRTHeading(speed,angle);
+		while(true){
+			int val = USreadDist(sonar);
+			if((val > threshold) == see_now) {
+				ct++;
+				playSound(soundBlip);
+			}
+			else {
+				ct = 0;
+			}
+			if(ct > 10) {
+				break;
+			}
+			wait1Msec(5);
+		}
+		move(0);
+}
+
 void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
 		//see_now describes whether the ultrasonic is currently within the threshold.
 		//True is that it is within the threshold.
