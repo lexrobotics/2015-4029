@@ -246,14 +246,14 @@ task batteryMonitor() {
 	clearDebugStream();
 	ClearTimer(T3);
 	int time = 0;
-	const int interval = 5;
+	const int interval = 1;
 	while(true) {
 		if(time1[T3] > interval * 1000) {
-			writeDebugStreamLine("%d sec - %f volts (instant), %f volts (filtered)", time, externalBattery, externalBatteryAvg);
-			time1[T3] -= interval * 1000;
-			time += interval * 1000;
+			writeDebugStreamLine("%d sec - %4f volts (instant), %4f volts (filtered)", time, externalBattery/1000.0, externalBatteryAvg/1000.0);
+			ClearTimer(T3);
+			time += interval;
 		}
-		wait10Msec(1);
+		wait10Msec(20);
 	}
 }
 

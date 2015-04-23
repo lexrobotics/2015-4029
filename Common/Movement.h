@@ -63,6 +63,8 @@ task init() {
 	servo[egRelease] = 127;
 	servo[kickstand] = 255; // kickstand hook
 	servo[egLift] = 190;
+	servo[grabberLift1] = 127;
+	servo[grabberLift2] = 127;
 }
 
 bool lifted = false;
@@ -82,9 +84,10 @@ task raiseGrabber() {
 }
 
 task lowerGrabber() {
+	pause(2);
 	servo[grabberLift1] = 0;
 	servo[grabberLift2] = 255;
-	pause(1.2);
+	pause(1.6);
 	servo[grabberLift1] = 127;
 	servo[grabberLift2] = 127;
 }
@@ -131,6 +134,7 @@ task raiseLift() {
 }
 
 task releaseTubeTask() {
+	releaseTube();
 	releaseTube();
 }
 
@@ -204,6 +208,16 @@ void moveDistance(int speed, int distance) {
 		}
 
 	move(0); //stop
+}
+void moveDistanceCoast(int speed, int distance) {
+	int target = inchesToEncoder(distance);
+	resetEncoders();
+
+	while(abs(nMotorEncoder[motorFrontLeft]) < abs(target)  //wait until position reached
+		&& abs(nMotorEncoder[motorBackRight]) < abs(target)) {
+			move(speed); //move at desired speed
+		}
+ //stop
 }
 
 void moveDistancePID(int distance) {
@@ -384,6 +398,7 @@ task translateWithHeading() {
 		//yforcefactor=0;
 		float rot = 0;
 		float heading = getHeading();
+		//writeDebugStreamLine("%f", heading);
 		float error = heading - initialHeading;
 
 		if(heading > threshold + initialHeading)

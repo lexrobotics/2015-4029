@@ -24,7 +24,7 @@ void irTillSensePeak(int speed){
       	break;
      wait1Msec(5);
 	}
-	while(count < 5) {
+	while(count < 10) {
 
 
 		if (!HTIRS2readAllACStrength(irSeeker, acS1, acS2, acS3, acS4, acS5 ))

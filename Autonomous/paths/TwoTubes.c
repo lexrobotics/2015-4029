@@ -36,10 +36,11 @@ void TwoTubes() {
 	turnUltra(1, 0);
 
 	StartTask(releaseTubeTask); // ready to receive tube
-	//moveDisqtance(-100, 80);
-	translateDistanceHeading(-100, 0, 80);
-	initialHeading = 0;
 	StartTask(lowerGrabber);
+	moveDistanceCoast(-100, 20);
+	initialHeading = 0;
+	translateDistanceHeading(-100, 0, 60);
+
 	pause(0.1);
 	moveDistancePID(-20);
 	pause(0.1);
@@ -52,20 +53,30 @@ void TwoTubes() {
 	pause(0.2);
 	//moveDistancePID(-40); // move further to shift to the tube into the pentagon slot
 	grabTube(); //Lower the tube grabber
-	repeatedTillSenseHeading(120, 90, true, 70, clampUS);
+	while(USreadDist(rearUS) == 255) {
+		translateRTHeading(120, 90);
+		pause(0.01);
+	}
+	translating = false;
+	repeatedTillSenseHeading(120, 90, true, 65, clampUS);
 	turnWithGyro(-100, 180);
-	releaseTube();
-	moveDistancePID(10);
+	releaseTube(); releaseTube(); releaseTube();
+	moveDistancePID(13);
 	turnWithGyro(-100, 180);
 
 	repeatedTillSenseHeading(-120, 90, false, 20, clampUS);
-	turnUltra(1, 90);
-	pause(0.3);
 
-	translateDistanceHeading(-100,0,20);
+	translateDistanceHeading(-100,0,25);
 	grabTube();
-	moveDistance(100, 21);
+	moveDistance(100, 16);
+	while(USreadDist(rearUS) == 255) {
+		translateRTHeading(120, 90);
+		pause(0.01);
+	}
+	translating = false;
+	pause(0.1);
 	repeatedTillSenseHeading(120, 90, true, 65, clampUS);
+	pause(0.1);
 	pause(0.2);
 	turnUltra(0, 85);
 	pause(0.3);
@@ -77,7 +88,7 @@ void TwoTubes() {
 	repeatedTillSenseHeading(120, 90, true, 60, clampUS);
 	moveDistance(-50, 5);
 	turnWithGyro(-100, 140);
-	releaseTube();
+	releaseTube();releaseTube();
 	moveDistance(100, 15);
 }
 
