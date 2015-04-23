@@ -293,7 +293,7 @@ void repeatedTillSenseHeading(int speed, int angle, bool see_now, int threshold,
 			}
 			wait1Msec(5);
 		}
-		move(0);
+		translating = false;
 }
 
 void repeatedTillSense(int speed, int angle, bool see_now, int threshold, tMUXSensor sonar){
