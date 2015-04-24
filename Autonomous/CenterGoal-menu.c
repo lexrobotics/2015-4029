@@ -27,10 +27,10 @@
 //#include "JoystickDriver.c"
 //#include "drivers/hitechnic-irseeker-v2.h"
 #include "JoystickDriver.c"
-#include "../../Common/Ultrasonic-SMUX.h"
-#include "../../Common/Touch.h"
-#include "../../Common/Movement.h"
-#include "../../Common/IMU.h"
+#include "../Common/Ultrasonic-SMUX.h"
+#include "../Common/Touch.h"
+#include "../Common/Movement.h"
+#include "../Common/IMU.h"
 
 bool everPressed = false;
 
@@ -164,16 +164,38 @@ int CenterGoal() {
 	return position;
 }
 
-#ifndef AUTO_COMPETITION
+int selectInt(const string label, int prev) {
+	int i = prev;
+	while(nNxtButtonPressed != 3) {
+		nxtDisplayCenteredTextLine(2, "%s: %d", label, i);
+		if(nNxtButtonPressed == 1) i++;
+		if(nNxtButtonPressed == 2) i--;
+		if(nNxtButtonPressed != -1) wait1Msec(200);
+		if(i<0) i = 0;
+	}
+	return i;
+}
+
 task main() {
 	//servo[clamp2] = 127;
 	//servo[clamp1] = 127;
 	//servo[egRelease] = 127;
 	//servo[egLift] = 127;
+	int delay = selectInt("Delay", 0);
+	ClearTimer(T4);
 	resetArduino();
-	pause(5);
-	PlaySound(soundBeepBeep);
+	while(time1[T4] < 5000) {
+			writeDebugStreamLine("%d", time1[T4]);
+			int time = round(5 - (time1[T4]/1000));
+			nxtDisplayCenteredTextLine(2, "Reset IMU: %d sec left", time);
+			wait10Msec(1);
+	}
+
+	nxtDisplayCenteredTextLine(2, "*****%ds******", delay);
+	//createTeleopConfigFile(teleopFileName);
+	waitForStart();
+	pause(delay);
+
 	int position = CenterGoal();
 	CenterToKickstand(position);
 }
-#endif

@@ -60,7 +60,9 @@ void TwoTubes() {
 	translating = false;
 	repeatedTillSenseHeading(120, 90, true, 65, clampUS);
 	turnWithGyro(-100, 180);
-	releaseTube(); releaseTube(); releaseTube();
+	StartTask(lowerGrabber);
+	pause(0.2);
+	releaseTube(); pause(0.1); releaseTube();
 	moveDistancePID(13);
 	turnWithGyro(-100, 180);
 

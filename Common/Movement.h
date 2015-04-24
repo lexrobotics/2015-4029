@@ -398,7 +398,7 @@ task translateWithHeading() {
 		//yforcefactor=0;
 		float rot = 0;
 		float heading = getHeading();
-		//writeDebugStreamLine("%f", heading);
+		writeDebugStreamLine("%f", heading);
 		float error = heading - initialHeading;
 
 		if(heading > threshold + initialHeading)
@@ -464,6 +464,7 @@ void turnWithGyro(int speed, int angle) {
 
 	const int threshold = 1;
 	while(abs(getHeading() - target) > threshold) {
+		writeDebugStreamLine("%f", getHeading());
 		if(getHeading() > target + threshold)
 			turn((getHeading()-target)/360.0 * 100.00 + 35);
 		if(getHeading() < target - threshold)
@@ -471,7 +472,6 @@ void turnWithGyro(int speed, int angle) {
 	}
 	turn(0);
 	initialHeading = target;
-
 }
 
 //void turnToHeading(int speed, float heading) {
